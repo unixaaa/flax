@@ -157,7 +157,7 @@ namespace Parser
 		}
 	}
 
-	std::string arithmeticOpToString(Codegen::CodegenInstance* cgi, Ast::ArithmeticOp op)
+	std::string arithmeticOpToString(Codegen::CodegenInstance* cgi, ArithmeticOp op)
 	{
 		switch(op)
 		{

@@ -25,7 +25,7 @@ namespace GenError
 {
 	void unknownSymbol(Codegen::CodegenInstance* cgi, Ast::Expr* e, std::string symname, SymbolType st) __attribute__((noreturn));
 	void duplicateSymbol(Codegen::CodegenInstance* cgi, Ast::Expr* e, std::string symname, SymbolType st) __attribute__((noreturn));
-	void noOpOverload(Codegen::CodegenInstance* cgi, Ast::Expr* e, std::string type, Ast::ArithmeticOp op) __attribute__((noreturn));
+	void noOpOverload(Codegen::CodegenInstance* cgi, Ast::Expr* e, std::string type, ArithmeticOp op) __attribute__((noreturn));
 	void invalidAssignment(Codegen::CodegenInstance* cgi, Ast::Expr* e, fir::Value* a, fir::Value* b) __attribute__((noreturn));
 	void invalidAssignment(Codegen::CodegenInstance* cgi, Ast::Expr* e, fir::Type* a, fir::Type* b) __attribute__((noreturn));
 	void nullValue(Codegen::CodegenInstance* cgi, Ast::Expr* e, int funcArgument = -1) __attribute__((noreturn));
@@ -64,8 +64,8 @@ namespace Codegen
 		TypeMap_t typeMap;
 
 		// custom operator stuff
-		std::map<Ast::ArithmeticOp, std::pair<std::string, int>> customOperatorMap;
-		std::map<std::string, Ast::ArithmeticOp> customOperatorMapRev;
+		std::map<ArithmeticOp, std::pair<std::string, int>> customOperatorMap;
+		std::map<std::string, ArithmeticOp> customOperatorMapRev;
 
 		std::deque<Ast::Func*> funcScopeStack;
 
@@ -254,7 +254,7 @@ namespace Codegen
 
 
 
-		Ast::Result_t doBinOpAssign(Ast::Expr* user, Ast::Expr* l, Ast::Expr* r, Ast::ArithmeticOp op, fir::Value* lhs, fir::Value* ref, fir::Value* rhs, fir::Value* rhsPtr);
+		Ast::Result_t doBinOpAssign(Ast::Expr* user, Ast::Expr* l, Ast::Expr* r, ArithmeticOp op, fir::Value* lhs, fir::Value* ref, fir::Value* rhs, fir::Value* rhsPtr);
 
 		Ast::Result_t doTupleAccess(fir::Value* selfPtr, Ast::Number* num, bool createPtr);
 
@@ -270,17 +270,17 @@ namespace Codegen
 		bool verifyAllPathsReturn(Ast::Func* func, size_t* stmtCounter, bool checkType, fir::Type* retType = 0);
 
 		fir::Type* getExprTypeOfBuiltin(std::string type);
-		Ast::ArithmeticOp determineArithmeticOp(std::string ch);
-		fir::Instruction getBinaryOperator(Ast::ArithmeticOp op, bool isSigned, bool isFP);
+		ArithmeticOp determineArithmeticOp(std::string ch);
+		fir::Instruction getBinaryOperator(ArithmeticOp op, bool isSigned, bool isFP);
 		fir::Function* getStructInitialiser(Ast::Expr* user, TypePair_t* pair, std::vector<fir::Value*> args);
-		Ast::Result_t doPointerArithmetic(Ast::ArithmeticOp op, fir::Value* lhs, fir::Value* lhsptr, fir::Value* rhs);
+		Ast::Result_t doPointerArithmetic(ArithmeticOp op, fir::Value* lhs, fir::Value* lhsptr, fir::Value* rhs);
 		Ast::Result_t callTypeInitialiser(TypePair_t* tp, Ast::Expr* user, std::vector<fir::Value*> args);
 
 		// <isBinOp, isInType, isPrefix, needsSwap, needsNOT, needsAssign, opFunc, assignFunc>
 		std::tuple<bool, bool, bool, bool, bool, bool, fir::Function*, fir::Function*>
-		getOperatorOverload(Ast::Expr* u, Ast::ArithmeticOp op, fir::Type* lhs, fir::Type* rhs);
+		getOperatorOverload(Ast::Expr* u, ArithmeticOp op, fir::Type* lhs, fir::Type* rhs);
 
-		Ast::Result_t callOperatorOverload(std::tuple<bool, bool, bool, bool, bool, bool, fir::Function*, fir::Function*> data, fir::Value* lhs, fir::Value* lhsRef, fir::Value* rhs, fir::Value* rhsRef, Ast::ArithmeticOp op);
+		Ast::Result_t callOperatorOverload(std::tuple<bool, bool, bool, bool, bool, bool, fir::Function*, fir::Function*> data, fir::Value* lhs, fir::Value* lhsRef, fir::Value* rhs, fir::Value* rhsRef, ArithmeticOp op);
 
 
 		Ast::Expr* cloneAST(Ast::Expr* e);

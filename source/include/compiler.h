@@ -29,8 +29,8 @@ namespace Compiler
 {
 	typedef std::tuple<Ast::Root*, std::vector<std::string>, std::unordered_map<std::string, Ast::Root*>, std::unordered_map<std::string, fir::Module*>> CompiledData;
 
-	CompiledData compileFile(std::string filename, std::map<Ast::ArithmeticOp, std::pair<std::string, int>> foundOps,
-		std::map<std::string, Ast::ArithmeticOp> foundOpsRev);
+	CompiledData compileFile(std::string filename, std::map<ArithmeticOp, std::pair<std::string, int>> foundOps,
+		std::map<std::string, ArithmeticOp> foundOpsRev);
 
 	void compileToLlvm(std::string filename, std::string outname, CompiledData data);
 

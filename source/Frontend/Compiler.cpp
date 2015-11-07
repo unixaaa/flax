@@ -15,6 +15,16 @@
 #include "compiler.h"
 #include "dependency.h"
 
+
+#ifndef __STDC_CONSTANT_MACROS
+#define __STDC_CONSTANT_MACROS
+#endif
+
+#ifndef __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS
+#endif
+
+
 #include "llvm/IR/Verifier.h"
 #include "llvm/Support/SourceMgr.h"
 #include "llvm/IRReader/IRReader.h"
@@ -228,7 +238,7 @@ namespace Compiler
 
 
 	std::tuple<Root*, std::vector<std::string>, std::unordered_map<std::string, Root*>, std::unordered_map<std::string, fir::Module*>>
-	compileFile(std::string filename, std::map<Ast::ArithmeticOp, std::pair<std::string, int>> foundOps, std::map<std::string, Ast::ArithmeticOp> foundOpsRev)
+	compileFile(std::string filename, std::map<ArithmeticOp, std::pair<std::string, int>> foundOps, std::map<std::string, ArithmeticOp> foundOpsRev)
 	{
 		using namespace Codegen;
 

@@ -117,7 +117,7 @@ namespace fir
 		Function* getCurrentFunction();
 		IRBlock* getCurrentBlock();
 
-		Value* CreateBinaryOp(Ast::ArithmeticOp ao, Value* a, Value* b, std::string vname = "");
+		Value* CreateBinaryOp(ArithmeticOp ao, Value* a, Value* b, std::string vname = "");
 
 		private:
 		Value* addInstruction(Instruction* instr, std::string vname);

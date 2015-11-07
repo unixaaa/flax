@@ -68,7 +68,7 @@ namespace fir
 		return v;
 	}
 
-	Instruction* Instruction::GetBinaryOpInstruction(Ast::ArithmeticOp ao, Value* vlhs, Value* vrhs)
+	Instruction* Instruction::GetBinaryOpInstruction(ArithmeticOp ao, Value* vlhs, Value* vrhs)
 	{
 		OpKind op = OpKind::Invalid;
 
@@ -86,7 +86,7 @@ namespace fir
 		iceAssert(lpt && rpt && "not primitive types");
 
 		Type* out = 0;
-		if(ao == Ast::ArithmeticOp::Add || ao == Ast::ArithmeticOp::PlusEquals)
+		if(ao == ArithmeticOp::Add || ao == ArithmeticOp::PlusEquals)
 		{
 			op = useFloating ? OpKind::Floating_Add : useSigned ? OpKind::Signed_Add : OpKind::Unsigned_Add;
 
@@ -114,7 +114,7 @@ namespace fir
 				}
 			}
 		}
-		else if(ao == Ast::ArithmeticOp::Subtract || ao == Ast::ArithmeticOp::MinusEquals)
+		else if(ao == ArithmeticOp::Subtract || ao == ArithmeticOp::MinusEquals)
 		{
 			op = useFloating ? OpKind::Floating_Sub : useSigned ? OpKind::Signed_Sub : OpKind::Unsigned_Sub;
 
@@ -142,7 +142,7 @@ namespace fir
 				}
 			}
 		}
-		else if(ao == Ast::ArithmeticOp::Multiply || ao == Ast::ArithmeticOp::MultiplyEquals)
+		else if(ao == ArithmeticOp::Multiply || ao == ArithmeticOp::MultiplyEquals)
 		{
 			op = useFloating ? OpKind::Floating_Mul : useSigned ? OpKind::Signed_Mul : OpKind::Unsigned_Mul;
 
@@ -170,7 +170,7 @@ namespace fir
 				}
 			}
 		}
-		else if(ao == Ast::ArithmeticOp::Divide || ao == Ast::ArithmeticOp::DivideEquals)
+		else if(ao == ArithmeticOp::Divide || ao == ArithmeticOp::DivideEquals)
 		{
 			op = useFloating ? OpKind::Floating_Div : useSigned ? OpKind::Signed_Div : OpKind::Unsigned_Div;
 
@@ -198,7 +198,7 @@ namespace fir
 				}
 			}
 		}
-		else if(ao == Ast::ArithmeticOp::Modulo || ao == Ast::ArithmeticOp::ModEquals)
+		else if(ao == ArithmeticOp::Modulo || ao == ArithmeticOp::ModEquals)
 		{
 			op = useFloating ? OpKind::Floating_Mod : useSigned ? OpKind::Signed_Mod : OpKind::Unsigned_Mod;
 
@@ -226,42 +226,42 @@ namespace fir
 				}
 			}
 		}
-		else if(ao == Ast::ArithmeticOp::ShiftLeft || ao == Ast::ArithmeticOp::ShiftLeftEquals)
+		else if(ao == ArithmeticOp::ShiftLeft || ao == ArithmeticOp::ShiftLeftEquals)
 		{
 			if(useFloating) iceAssert("shift operation can only be done with ints");
 			op = OpKind::Bitwise_Shl;
 
 			out = lhs;
 		}
-		else if(ao == Ast::ArithmeticOp::ShiftRight || ao == Ast::ArithmeticOp::ShiftRightEquals)
+		else if(ao == ArithmeticOp::ShiftRight || ao == ArithmeticOp::ShiftRightEquals)
 		{
 			if(useFloating) iceAssert("shift operation can only be done with ints");
 			op = useSigned ? OpKind::Bitwise_Arithmetic_Shr : OpKind::Bitwise_Logical_Shr;
 
 			out = lhs;
 		}
-		else if(ao == Ast::ArithmeticOp::BitwiseAnd)
+		else if(ao == ArithmeticOp::BitwiseAnd)
 		{
 			if(useFloating) iceAssert("bitwise ops only defined for int types (cast if needed)");
 			op = OpKind::Bitwise_And;
 
 			out = lhs;
 		}
-		else if(ao == Ast::ArithmeticOp::BitwiseOr)
+		else if(ao == ArithmeticOp::BitwiseOr)
 		{
 			if(useFloating) iceAssert("bitwise ops only defined for int types (cast if needed)");
 			op = OpKind::Bitwise_Or;
 
 			out = lhs;
 		}
-		else if(ao == Ast::ArithmeticOp::BitwiseXor)
+		else if(ao == ArithmeticOp::BitwiseXor)
 		{
 			if(useFloating) iceAssert("bitwise ops only defined for int types (cast if needed)");
 			op = OpKind::Bitwise_Xor;
 
 			out = lhs;
 		}
-		else if(ao == Ast::ArithmeticOp::BitwiseNot)
+		else if(ao == ArithmeticOp::BitwiseNot)
 		{
 			if(useFloating) iceAssert("bitwise ops only defined for int types (cast if needed)");
 			op = OpKind::Bitwise_Not;
@@ -276,7 +276,7 @@ namespace fir
 		return new Instruction(op, out, { vlhs, vrhs });
 	}
 
-	Value* IRBuilder::CreateBinaryOp(Ast::ArithmeticOp ao, Value* a, Value* b, std::string vname)
+	Value* IRBuilder::CreateBinaryOp(ArithmeticOp ao, Value* a, Value* b, std::string vname)
 	{
 		Instruction* instr = Instruction::GetBinaryOpInstruction(ao, a, b);
 		if(instr == 0) return 0;
