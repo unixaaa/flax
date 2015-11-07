@@ -31,6 +31,21 @@ namespace Ast
 	struct FuncDecl;
 	struct OpOverload;
 	struct BreakableBracedBlock;
+
+
+	extern uint64_t Attr_Invalid;
+	extern uint64_t Attr_NoMangle;
+	extern uint64_t Attr_VisPublic;
+	extern uint64_t Attr_VisInternal;
+	extern uint64_t Attr_VisPrivate;
+	extern uint64_t Attr_ForceMangle;
+	extern uint64_t Attr_NoAutoInit;
+	extern uint64_t Attr_PackedStruct;
+	extern uint64_t Attr_StrongTypeAlias;
+	extern uint64_t Attr_RawString;
+	extern uint64_t Attr_Override;
+	extern uint64_t Attr_CommutativeOp;
+
 }
 
 namespace Parser
@@ -114,7 +129,59 @@ namespace Codegen
 	};
 }
 
+enum class ArithmeticOp
+{
+	Invalid,
+	Add,
+	Subtract,
+	Multiply,
+	Divide,
+	Modulo,
+	ShiftLeft,
+	ShiftRight,
+	Assign,
 
+	CmpLT,
+	CmpGT,
+	CmpLEq,
+	CmpGEq,
+	CmpEq,
+	CmpNEq,
+
+	LogicalNot,
+	Plus,
+	Minus,
+
+	AddrOf,
+	Deref,
+
+	BitwiseAnd,
+	BitwiseOr,
+	BitwiseXor,
+	BitwiseNot,
+
+	LogicalAnd,
+	LogicalOr,
+
+	Cast,
+	ForcedCast,
+
+	PlusEquals,
+	MinusEquals,
+	MultiplyEquals,
+	DivideEquals,
+	ModEquals,
+	ShiftLeftEquals,
+	ShiftRightEquals,
+	BitwiseAndEquals,
+	BitwiseOrEquals,
+	BitwiseXorEquals,
+	MemberAccess,
+	ScopeResolution,
+	TupleSeparator,
+
+	UserDefined
+};
 
 
 

@@ -18,10 +18,9 @@ namespace Codegen
 namespace Ast
 {
 	struct Root;
-	enum class ArithmeticOp;
 }
 
-
+enum class ArithmeticOp;
 namespace Parser
 {
 	enum class TType
@@ -291,9 +290,9 @@ namespace Parser
 	std::string getModuleName(std::string filename);
 	Token getNextToken(std::string& stream, Pin& pos);
 
-	std::string arithmeticOpToString(Codegen::CodegenInstance*, Ast::ArithmeticOp op);
-	Ast::ArithmeticOp mangledStringToOperator(Codegen::CodegenInstance*, std::string op);
-	std::string operatorToMangledString(Codegen::CodegenInstance*, Ast::ArithmeticOp op);
+	std::string arithmeticOpToString(Codegen::CodegenInstance*, ArithmeticOp op);
+	ArithmeticOp mangledStringToOperator(Codegen::CodegenInstance*, std::string op);
+	std::string operatorToMangledString(Codegen::CodegenInstance*, ArithmeticOp op);
 }
 
 

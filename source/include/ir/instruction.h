@@ -17,12 +17,8 @@
 
 #include "value.h"
 
-namespace Ast
-{
-	enum class ArithmeticOp;
-}
 
-
+enum class ArithmeticOp;
 namespace fir
 {
 	enum class OpKind
@@ -137,7 +133,7 @@ namespace fir
 		void setValue(Value* v);
 		void clearValue();
 
-		static Instruction* GetBinaryOpInstruction(Ast::ArithmeticOp ao, Value* lhs, Value* rhs);
+		static Instruction* GetBinaryOpInstruction(ArithmeticOp ao, Value* lhs, Value* rhs);
 
 
 		protected:
