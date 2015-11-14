@@ -31,6 +31,9 @@ namespace fir
 	struct StructType;
 	struct ArrayType;
 
+	struct TypeParameter;
+
+
 	struct FTContext
 	{
 		// primitives
@@ -56,6 +59,8 @@ namespace fir
 	enum class FTypeKind
 	{
 		Invalid,
+
+		Generic,
 
 		Void,
 		Pointer,
@@ -99,17 +104,10 @@ namespace fir
 		StructType* toStructType();
 		ArrayType* toArrayType();
 
-
-		// bool isPointerTo(Type* other, FTContext* tc = 0);
-		// bool isArrayElementOf(Type* other, FTContext* tc = 0);
-		// bool isPointerElementOf(Type* other, FTContext* tc = 0);
-
-
 		bool isStructType();
 		bool isNamedStruct();
 		bool isLiteralStruct();
 		bool isPackedStruct();
-
 
 		bool isArrayType();
 		bool isIntegerType();
@@ -275,7 +273,7 @@ namespace fir
 		std::string getStructName();
 		size_t getElementCount();
 		Type* getElementN(size_t n);
-		std::vector<Type*> getElements();
+		std::deque<Type*> getElements();
 
 		void setBody(std::initializer_list<Type*> members);
 		void setBody(std::vector<Type*> members);
@@ -378,6 +376,35 @@ namespace fir
 		static FunctionType* get(std::deque<Type*> args, Type* ret, bool isVarArg, FTContext* tc = 0);
 		static FunctionType* get(std::vector<Type*> args, Type* ret, bool isVarArg, FTContext* tc = 0);
 		static FunctionType* get(std::initializer_list<Type*> args, Type* ret, bool isVarArg, FTContext* tc = 0);
+	};
+
+
+
+	struct TypeParameter : Type
+	{
+		friend struct Type;
+
+		// methods
+		std::string getName();
+
+		virtual std::string str() override;
+		virtual bool isTypeEqual(Type* other) override;
+
+
+		// protected constructor
+		protected:
+		TypeParameter(std::string name, FunctionType* funcScope);
+		TypeParameter(std::string name, StructType* structScope);
+
+		virtual ~TypeParameter() override { }
+
+		// fields (protected)
+		std::string parameterName;
+		Type* scope = 0;
+
+		// static funcs
+		static TypeParameter* getForFunction(std::string name, FunctionType* scope);
+		static TypeParameter* getForStruct(std::string name, StructType* scope);
 	};
 }
 

@@ -8,6 +8,9 @@ namespace fir
 {
 	// todo: specify this too
 	#define BITS_PER_BYTE 8
+	#if CHAR_BIT != BITS_PER_BYTE
+		#error "Unsupported architecture!"
+	#endif
 
 	ExecutionTarget::ExecutionTarget(size_t ptrSize, size_t byteSize, size_t shortSize, size_t intSize, size_t longSize)
 	{
@@ -162,6 +165,40 @@ namespace fir
 		return existing;
 	}
 
+	ExecutionTarget* ExecutionTarget::getLLP64()
+	{
+		static ExecutionTarget* existing = 0;
+
+		if(!existing)
+		{
+			existing = new ExecutionTarget(8 * BITS_PER_BYTE,
+											1 * BITS_PER_BYTE,
+											2 * BITS_PER_BYTE,
+											4 * BITS_PER_BYTE,
+											4 * BITS_PER_BYTE);
+		}
+
+		return existing;
+	}
+
+	ExecutionTarget* ExecutionTarget::getILP64()
+	{
+		static ExecutionTarget* existing = 0;
+
+		if(!existing)
+		{
+			existing = new ExecutionTarget(8 * BITS_PER_BYTE,
+											1 * BITS_PER_BYTE,
+											2 * BITS_PER_BYTE,
+											8 * BITS_PER_BYTE,
+											8 * BITS_PER_BYTE);
+		}
+
+		return existing;
+	}
+
+
+
 	ExecutionTarget* ExecutionTarget::getILP32()
 	{
 		static ExecutionTarget* existing = 0;
@@ -176,6 +213,54 @@ namespace fir
 		}
 
 		return existing;
+	}
+
+
+
+
+
+
+
+
+	ExecutionTarget* ExecutionTarget::getAppropriate()
+	{
+		size_t charSize = sizeof(char) * BITS_PER_BYTE;
+		size_t shortSize = sizeof(char) * BITS_PER_BYTE;
+		size_t integerSize = sizeof(char) * BITS_PER_BYTE;
+		size_t longIntegerSize = sizeof(char) * BITS_PER_BYTE;
+		size_t longLongIntegerSize = sizeof(char) * BITS_PER_BYTE;
+		size_t pointerSize = sizeof(char) * BITS_PER_BYTE;
+
+		if(charSize == 8 && shortSize == 16 && integerSize == 32 && longIntegerSize == 32 && longLongIntegerSize == 64
+			&& pointerSize == 32)
+		{
+			return ExecutionTarget::getILP32();
+		}
+		else if(charSize == 8 && shortSize == 16 && integerSize == 32 && longIntegerSize == 64 && longLongIntegerSize == 64
+			&& pointerSize == 64)
+		{
+			return ExecutionTarget::getLP64();
+		}
+		else if(charSize == 8 && shortSize == 16 && integerSize == 32 && longIntegerSize == 32 && longLongIntegerSize == 64
+			&& pointerSize == 64)
+		{
+			return ExecutionTarget::getLLP64();
+		}
+		else if(charSize == 8 && shortSize == 16 && integerSize == 64 && longIntegerSize == 64 && longLongIntegerSize == 64
+			&& pointerSize == 64)
+		{
+			return ExecutionTarget::getILP64();
+		}
+		else
+		{
+			error("Unsupported architecture:\n"
+					"sizeof(char):      %zu\n"
+					"sizeof(short):     %zu\n"
+					"sizeof(int):       %zu\n"
+					"sizeof(long):      %zu\n"
+					"sizeof(long long): %zu\n"
+					"sizeof(void*):     %zu\n", charSize, shortSize, integerSize, longIntegerSize, longLongIntegerSize, pointerSize);
+		}
 	}
 }
 

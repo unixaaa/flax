@@ -185,15 +185,10 @@ namespace fir
 		return this->structMembers[n];
 	}
 
-	std::vector<Type*> StructType::getElements()
+	std::deque<Type*> StructType::getElements()
 	{
 		iceAssert(this->typeKind == FTypeKind::NamedStruct || this->typeKind == FTypeKind::LiteralStruct && "not struct type");
-
-		std::vector<Type*> vmems;
-		for(auto m : this->structMembers)
-			vmems.push_back(m);
-
-		return vmems;
+		return this->structMembers;
 	}
 
 
