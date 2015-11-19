@@ -40,6 +40,7 @@ namespace fir
 		std::string print();
 
 		private:
+		Namespace* topLevelNamespace = 0;
 		std::string moduleName;
 	};
 }

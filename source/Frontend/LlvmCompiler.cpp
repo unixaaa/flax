@@ -44,7 +44,7 @@ namespace Compiler
 {
 	// optimise
 	static void optimiseLlvmModule(llvm::Module* mod);
-	static void doGlobalConstructors(std::string filename, CompiledData& data, Ast::Root* root, llvm::Module* mod);
+	static void doGlobalConstructors(std::string filename, CompiledData& data, Ast::RootAst* root, llvm::Module* mod);
 
 	static void runProgramWithJit(llvm::Module* mod);
 	static void compileBinary(std::string filename, std::string outname, CompiledData data, llvm::Module* mod);
@@ -52,9 +52,9 @@ namespace Compiler
 
 	void compileToLlvm(std::string filename, std::string outname, CompiledData data)
 	{
-		Ast::Root* root = std::get<0>(data);
+		Ast::RootAst* root = std::get<0>(data);
 		std::vector<std::string> filelist = std::get<1>(data);
-		std::unordered_map<std::string, Ast::Root*> rootmap = std::get<2>(data);
+		std::unordered_map<std::string, Ast::RootAst*> rootmap = std::get<2>(data);
 		std::unordered_map<std::string, llvm::Module*> modulelist;
 
 		// translate to llvm
@@ -185,7 +185,7 @@ namespace Compiler
 		Compiler::compileProgram(mod, std::get<1>(data), foldername, outname);
 	}
 
-	static void doGlobalConstructors(std::string filename, CompiledData& data, Ast::Root* root, llvm::Module* mod)
+	static void doGlobalConstructors(std::string filename, CompiledData& data, Ast::RootAst* root, llvm::Module* mod)
 	{
 		auto& rootmap = std::get<2>(data);
 

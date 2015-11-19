@@ -27,7 +27,7 @@ namespace Parser
 
 namespace Compiler
 {
-	typedef std::tuple<Ast::Root*, std::vector<std::string>, std::unordered_map<std::string, Ast::Root*>, std::unordered_map<std::string, fir::Module*>> CompiledData;
+	typedef std::tuple<Ast::RootAst*, std::vector<std::string>, std::unordered_map<std::string, Ast::RootAst*>, std::unordered_map<std::string, fir::Module*>> CompiledData;
 
 	CompiledData compileFile(std::string filename, std::map<ArithmeticOp, std::pair<std::string, int>> foundOps,
 		std::map<std::string, ArithmeticOp> foundOpsRev);
@@ -47,7 +47,7 @@ namespace Compiler
 	// final stages
 	void compileProgram(llvm::Module* module, std::vector<std::string> filelist, std::string foldername, std::string outname);
 
-	std::string resolveImport(Ast::Import* imp, std::string fullPath);
+	std::string resolveImport(Ast::ImportStmt* imp, std::string fullPath);
 
 
 	std::deque<Parser::Token> getFileTokens(std::string fullPath);

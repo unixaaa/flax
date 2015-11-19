@@ -65,7 +65,7 @@ namespace Codegen
 
 namespace SemAnalysis
 {
-	Codegen::DependencyGraph* resolveDependencyGraph(Codegen::CodegenInstance* cgi, Ast::Root* root);
+	Codegen::DependencyGraph* resolveDependencyGraph(Codegen::CodegenInstance* cgi, Ast::RootAst* root);
 }
 
 

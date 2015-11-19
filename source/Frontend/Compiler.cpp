@@ -98,7 +98,7 @@ namespace Compiler
 		to->globalConstructors		= from->globalConstructors;
 	}
 
-	static void copyRootInnards(Codegen::CodegenInstance* cgi, Root* from, Root* to, bool doClone)
+	static void copyRootInnards(Codegen::CodegenInstance* cgi, RootAst* from, RootAst* to, bool doClone)
 	{
 		using namespace Codegen;
 
@@ -128,7 +128,7 @@ namespace Compiler
 		}
 	}
 
-	static std::pair<Codegen::CodegenInstance*, std::string> _compileFile(std::string fpath, Codegen::CodegenInstance* rcgi, Root* dummyRoot)
+	static std::pair<Codegen::CodegenInstance*, std::string> _compileFile(std::string fpath, Codegen::CodegenInstance* rcgi, RootAst* dummyRoot)
 	{
 		using namespace Codegen;
 		using namespace Parser;
@@ -145,7 +145,7 @@ namespace Compiler
 
 		// parse
 		// printf("*** start module %s\n", Compiler::getFilenameFromPath(fpath).c_str());
-		Root* root = Parser::Parse(pstate, fpath);
+		RootAst* root = Parser::Parse(pstate, fpath);
 		cgi->rootNode = root;
 
 		// add the previous stuff to our own root
@@ -237,7 +237,7 @@ namespace Compiler
 
 
 
-	std::tuple<Root*, std::vector<std::string>, std::unordered_map<std::string, Root*>, std::unordered_map<std::string, fir::Module*>>
+	std::tuple<RootAst*, std::vector<std::string>, std::unordered_map<std::string, RootAst*>, std::unordered_map<std::string, fir::Module*>>
 	compileFile(std::string filename, std::map<ArithmeticOp, std::pair<std::string, int>> foundOps, std::map<std::string, ArithmeticOp> foundOpsRev)
 	{
 		using namespace Codegen;
@@ -283,11 +283,11 @@ namespace Compiler
 		}
 
 		std::vector<std::string> outlist;
-		std::unordered_map<std::string, Root*> rootmap;
+		std::unordered_map<std::string, RootAst*> rootmap;
 		std::unordered_map<std::string, fir::Module*> modulemap;
 
 
-		Root* dummyRoot = new Root();
+		RootAst* dummyRoot = new Root();
 		CodegenInstance* rcgi = new CodegenInstance();
 
 		rcgi->customOperatorMap = foundOps;

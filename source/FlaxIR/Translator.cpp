@@ -22,6 +22,8 @@
 
 namespace fir
 {
+	#if 0
+
 	static llvm::Type* typeToLlvm(Type* type, llvm::Module* mod)
 	{
 		auto& gc = llvm::getGlobalContext();
@@ -88,7 +90,6 @@ namespace fir
 
 
 
-
 	static llvm::Constant* constToLlvm(ConstantValue* c, llvm::Module* mod)
 	{
 		iceAssert(c);
@@ -123,6 +124,7 @@ namespace fir
 		}
 	}
 
+	#endif
 
 
 
@@ -135,6 +137,12 @@ namespace fir
 
 		std::map<Value*, llvm::Value*> valueMap;
 
+
+
+
+
+
+		#if 0
 
 
 
@@ -158,6 +166,7 @@ namespace fir
 			}
 		};
 
+
 		auto getOperand = [&valueMap, &module, &builder, &getValue](Instruction* inst, size_t op) -> llvm::Value* {
 
 			iceAssert(inst->operands.size() > op);
@@ -175,7 +184,6 @@ namespace fir
 			valueMap[fv] = v;
 			v->setName(fv->getName());
 		};
-
 
 
 
@@ -1130,6 +1138,7 @@ namespace fir
 				}
 			}
 		}
+		#endif
 
 		return module;
 	}

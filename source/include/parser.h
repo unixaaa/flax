@@ -17,7 +17,7 @@ namespace Codegen
 
 namespace Ast
 {
-	struct Root;
+	struct RootAst;
 }
 
 enum class ArithmeticOp;
@@ -182,8 +182,8 @@ namespace Parser
 
 		Token curtok;
 		Pin currentPos;
-		Ast::Root* rootNode = 0;
 		uint64_t curAttrib = 0;
+		Ast::RootAst* rootNode = 0;
 
 		Codegen::CodegenInstance* cgi = 0;
 
@@ -238,50 +238,102 @@ namespace Parser
 
 
 	void parseAll(ParserState& tokens);
+	void parseAttribute(ParserState& ps);
 	Ast::Expr* parsePrimary(ParserState& tokens);
 
-	Ast::Expr* 				parseIf(ParserState& tokens);
-	Ast::ForLoop*			parseFor(ParserState& tokens);
-	Ast::Expr*				parseType(ParserState& tokens);
-	Ast::Enumeration*		parseEnum(ParserState& tokens);
-	Ast::Func*				parseFunc(ParserState& tokens);
-	Ast::Expr*				parseExpr(ParserState& tokens);
-	Ast::Expr*				parseUnary(ParserState& tokens);
-	Ast::WhileLoop*			parseWhile(ParserState& tokens);
-	Ast::Alloc*				parseAlloc(ParserState& tokens);
-	Ast::Break*				parseBreak(ParserState& tokens);
-	Ast::DeferredExpr*		parseDefer(ParserState& tokens);
-	Ast::Class*				parseClass(ParserState& tokens);
-	Ast::Expr*				parseIdExpr(ParserState& tokens);
-	Ast::Struct*			parseStruct(ParserState& tokens);
-	Ast::Import*			parseImport(ParserState& tokens);
-	Ast::Return*			parseReturn(ParserState& tokens);
-	Ast::Typeof*			parseTypeof(ParserState& tokens);
-	Ast::Number*			parseNumber(ParserState& tokens);
-	Ast::VarDecl*			parseVarDecl(ParserState& tokens);
-	Ast::Dealloc*			parseDealloc(ParserState& tokens);
-	Ast::Expr*				parseInitFunc(ParserState& tokens);
-	Ast::Continue*			parseContinue(ParserState& tokens);
-	Ast::FuncDecl*			parseFuncDecl(ParserState& tokens);
-	void					parseAttribute(ParserState& tokens);
-	Ast::TypeAlias*			parseTypeAlias(ParserState& tokens);
-	Ast::Extension*			parseExtension(ParserState& tokens);
-	Ast::NamespaceDecl*		parseNamespace(ParserState& tokens);
-	Ast::Expr*				parseStaticDecl(ParserState& tokens);
-	Ast::OpOverload*		parseOpOverload(ParserState& tokens);
-	Ast::BracedBlock*		parseBracedBlock(ParserState& tokens);
-	Ast::ForeignFuncDecl*	parseForeignFunc(ParserState& tokens);
-	Ast::Func*				parseTopLevelExpr(ParserState& tokens);
-	Ast::ArrayLiteral*		parseArrayLiteral(ParserState& tokens);
-	Ast::Expr*				parseParenthesised(ParserState& tokens);
-	Ast::StringLiteral*		parseStringLiteral(ParserState& tokens);
-	Ast::Tuple*				parseTuple(ParserState& tokens, Ast::Expr* lhs);
-	Ast::FuncCall*			parseFuncCall(ParserState& tokens, std::string id);
-	Ast::Expr*				parseRhs(ParserState& tokens, Ast::Expr* expr, int prio);
+
+	std::string parseType(ParserState& ps);
 
 
 
-	Ast::Root* Parse(ParserState& pstate, std::string filename);
+	// expressions
+	Ast::Expr*				parseExpr(ParserState& ps);
+	Ast::Typeof*			parseTypeofExpr(ParserState& ps);
+	Ast::Expr*				parseIdentifierExpr(ParserState& ps);
+	Ast::Expr*				parseParenthesisedExpr(ParserState& ps);
+	Ast::FuncCall*			parseFuncCall(ParserState& ps, std::string id);
+	Ast::Expr*				parseBinOpRhs(ParserState& ps, Ast::Expr* expr, int prio);
+
+	// literals
+	Ast::ArrayLiteral*		parseArrayLiteral(ParserState& ps);
+	Ast::StringLiteral*		parseStringLiteral(ParserState& ps);
+	Ast::NumberLiteral*		parseNumberLiteral(ParserState& ps);
+	Ast::BooleanLiteral*	parseBooleanLiteral(ParserState& ps);
+	Ast::TupleLiteral*		parseTupleLiteral(ParserState& ps, Ast::Expr* lhs);
+
+
+
+	// statements
+	Ast::AllocStmt*			parseAlloc(ParserState& ps);
+	Ast::BreakStmt*			parseBreak(ParserState& ps);
+	Ast::IfStmt*			parseIfStmt(ParserState& ps);
+	Ast::DeallocStmt*		parseDealloc(ParserState& ps);
+	Ast::DeferredStmt*		parseDeferred(ParserState& ps);
+	Ast::WhileLoop*			parseWhileLoop(ParserState& ps);
+	Ast::ImportStmt*		parseImportStmt(ParserState& ps);
+	Ast::ReturnStmt*		parseReturnStmt(ParserState& ps);
+	Ast::BracedBlock*		parseBracedBlock(ParserState& ps);
+	Ast::ContinueStmt*		parseContinueStmt(ParserState& ps);
+
+
+
+	// declarations
+	Ast::VarDecl*			parseVarDecl(ParserState& ps);
+	Ast::FuncDecl*			parseFuncDecl(ParserState& ps);
+	Ast::Expr*				parseStaticDecl(ParserState& ps);
+	Ast::FuncDecl*			parseForeignFuncDecl(ParserState& ps);
+
+
+	// definitions
+	Ast::NamespaceDef*		parseNamespace(ParserState& ps);
+
+	// types
+	Ast::ClassDef*			parseClass(ParserState& ps);
+	Ast::StructDef*			parseStruct(ParserState& ps);
+	Ast::ExtensionDef*		parseExtension(ParserState& ps);
+	Ast::EnumerationDef*	parseEnumeration(ParserState& ps);
+	Ast::TypeAliasDef*		parseTypeAliasDef(ParserState& ps);
+
+	// funcs
+	Ast::FunctionDef*		parseFunction(ParserState& ps);
+	Ast::OpOverloadDef*		parseOpOverloadDef(ParserState& ps);
+	Ast::FunctionDef*		parseInitialiserFuncDef(ParserState& ps);
+
+
+
+
+
+
+
+
+
+	// Ast::Expr*				parseType(ParserState& ps);
+	// Ast::CompoundType*		parseEnum(ParserState& ps);
+	// Ast::Func*				parseFunc(ParserState& ps);
+	// Ast::Expr*				parseExpr(ParserState& ps);
+	// Ast::Expr*				parseUnary(ParserState& ps);
+	// Ast::Expr*				parseIdExpr(ParserState& ps);
+	// Ast::Typeof*			parseTypeof(ParserState& ps);
+	// Ast::Number*			parseNumber(ParserState& ps);
+	// Ast::Dealloc*			parseDealloc(ParserState& ps);
+	// Ast::Expr*				parseInitFunc(ParserState& ps);
+	// void					parseAttribute(ParserState& ps);
+	// Ast::TypeAlias*			parseTypeAlias(ParserState& ps);
+	// Ast::Extension*			parseExtension(ParserState& ps);
+	// Ast::NamespaceDecl*		parseNamespace(ParserState& ps);
+	// Ast::Expr*				parseStaticDecl(ParserState& ps);
+	// Ast::OpOverload*		parseOpOverload(ParserState& ps);
+	// Ast::BracedBlock*		parseBracedBlock(ParserState& ps);
+	// Ast::ForeignFuncDecl*	parseForeignFunc(ParserState& ps);
+	// Ast::Func*				parseTopLevelExpr(ParserState& ps);
+	// Ast::ArrayLiteral*		parseArrayLiteral(ParserState& ps);
+	// Ast::StringLiteral*		parseStringLiteral(ParserState& ps);
+	// Ast::Tuple*				parseTuple(ParserState& ps, Ast::Expr* lhs);
+	// Ast::Expr*				parseRhs(ParserState& ps, Ast::Expr* expr, int prio);
+
+
+
+	Ast::RootAst* Parse(ParserState& pstate, std::string filename);
 	void parseAllCustomOperators(ParserState& pstate, std::string filename, std::string curpath);
 
 

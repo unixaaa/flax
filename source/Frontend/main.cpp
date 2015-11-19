@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 
 	Parser::parseAllCustomOperators(pstate, filename, curpath);
 
-	// ret = std::tuple<Root*, std::vector<std::string>, std::hashmap<std::string, Root*>, std::hashmap<fir::Module*>>
+	// ret = std::tuple<RootAst*, std::vector<std::string>, std::hashmap<std::string, RootAst*>, std::hashmap<fir::Module*>>
 	auto ret = Compiler::compileFile(filename, __cgi->customOperatorMap, __cgi->customOperatorMapRev);
 
 	Compiler::compileToLlvm(filename, outname, ret);
