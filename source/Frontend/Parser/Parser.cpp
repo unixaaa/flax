@@ -755,7 +755,7 @@ namespace Parser
 			ps.eat();
 			Expr* un = parseUnaryOp(ps);
 
-			return CreateASTPos(UnaryOp, tk.pin.file, tk.pin.line, tk.pin.col, tk.pin.len + un->pin.len, op, un);
+			return CreateASTPos(UnaryOp, tk.pin.file, tk.pin.line, tk.pin.col, tk.pin.len + un->posinfo.len, op, un);
 		}
 
 		return parsePrimary(ps);
@@ -778,7 +778,7 @@ namespace Parser
 		if(ps.front().type == TType::Func)
 		{
 			FunctionDef* ret = parseFunction(ps);
-			ret->decl->isStatic = true;
+			ret->funcDecl->isStatic = true;
 			return ret;
 		}
 		else if(ps.front().type == TType::Var || ps.front().type == TType::Val)
@@ -925,11 +925,11 @@ namespace Parser
 
 		ps.skipNewline();
 		FuncDecl* f = CreateAST(FuncDecl, func_id, id, params, ret);
-		f->attribs = checkAndApplyAttributes(ps, Attr_VisPublic | Attr_VisInternal | Attr_VisPrivate |
+		f->attributes = checkAndApplyAttributes(ps, Attr_VisPublic | Attr_VisInternal | Attr_VisPrivate |
 			Attr_NoMangle | Attr_ForceMangle | Attr_Override);
 
-		f->hasVarArg = isVA;
-		f->genericTypes = genericTypes;
+		f->isVarArg = isVA;
+		f->genericTypeParameters = genericTypes;
 
 		return f;
 	}
@@ -967,7 +967,7 @@ namespace Parser
 		decl->isFFI = true;
 		decl->ffiType = ffitype;
 
-		return CreateAST(ForeignFuncDecl, func, decl);
+		return decl;
 	}
 
 	BracedBlock* parseBracedBlock(ParserState& ps)
@@ -1276,7 +1276,7 @@ namespace Parser
 
 		std::string id = tok_id.text;
 		VarDecl* v = CreateAST(VarDecl, tok_id, id, immutable);
-		v->attribs = attribs;
+		v->attributes = attribs;
 
 		// check the type.
 		Token colon = ps.eat();
@@ -1302,11 +1302,11 @@ namespace Parser
 				// computed property, getting and setting
 
 				// eat the brace, skip whitespace
-				ComputedProperty* cprop = CreateAST(ComputedProperty, tok_id, id);
+				ClassPropertyDef* cprop = CreateAST(ClassPropertyDef, tok_id, id);
 				ps.eat();
 
 				cprop->type = v->type;
-				cprop->attribs = v->attribs;
+				cprop->attributes = v->attributes;
 				delete v;
 
 				bool didGetter = false;
@@ -1325,7 +1325,7 @@ namespace Parser
 						if(ps.front().type != TType::LBrace)
 							parserError("Expected '{' after 'get'");
 
-						cprop->getter = parseBracedBlock(ps);
+						cprop->getterDef = parseBracedBlock(ps);
 					}
 					else if(ps.front().type == TType::Set)
 					{
@@ -1350,7 +1350,7 @@ namespace Parser
 								parserError("Expected closing ')'");
 						}
 
-						cprop->setter = parseBracedBlock(ps);
+						cprop->setterDef = parseBracedBlock(ps);
 						cprop->setterArgName = setValName;
 					}
 					else if(ps.front().type == TType::RBrace)
@@ -1369,7 +1369,7 @@ namespace Parser
 						dummy.text = "{";
 
 						ps.tokens.push_front(dummy);
-						cprop->getter = parseBracedBlock(ps);
+						cprop->getterDef = parseBracedBlock(ps);
 
 
 						// lol, another hack
@@ -1418,7 +1418,7 @@ namespace Parser
 		}
 
 		// if we got here, we're a normal variable.
-		if(v->attribs & Attr_Override)
+		if(v->attributes & Attr_Override)
 			parserError("'override' can only be used with a var inside a class, tried to override var in struct");
 
 		return v;
@@ -1430,7 +1430,7 @@ namespace Parser
 		iceAssert(lhs);
 
 		Token first = ps.front();
-		std::vector<Expr*> values;
+		std::deque<Expr*> values;
 
 
 		values.push_back(lhs);
@@ -1492,7 +1492,7 @@ namespace Parser
 			if(ps.eat().type != TType::RSquare)
 				parserError("Expected ']' after '[' for array index");
 
-			newlhs = CreateAST(ArrayIndexExpr, top, curLhs, inside);
+			newlhs = CreateAST(SubscriptOp, top, curLhs, { inside });
 		}
 		else
 		{
@@ -1633,8 +1633,10 @@ namespace Parser
 			{
 				// casting op.
 				// wrap the type in a dummy.
-				rhs = CreateAST(Dummy, tok_op);
-				rhs->type = parseType(ps);
+				auto dummy = CreateAST(Dummy, tok_op);
+				dummy->type = parseType(ps);
+
+				rhs = dummy;
 			}
 			else
 			{
@@ -1660,10 +1662,10 @@ namespace Parser
 
 
 			if(op == ArithmeticOp::MemberAccess)
-				lhs = CreateAST(MemberAccess, tok_op, lhs, rhs);
+				lhs = CreateAST(DotOp, tok_op, lhs, rhs);
 
 			else
-				lhs = CreateAST(BinaryOp, tok_op, lhs, op, rhs);
+				lhs = CreateAST(BinaryOp, tok_op, op, lhs, rhs);
 		}
 	}
 
