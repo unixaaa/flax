@@ -10,11 +10,6 @@
 #include <deque>
 #include <algorithm>
 
-namespace Codegen
-{
-	struct CodegenInstance;
-}
-
 namespace Ast
 {
 	struct RootAst;
@@ -174,8 +169,6 @@ namespace Parser
 	typedef std::deque<Token> TokenList;
 	struct ParserState
 	{
-		explicit ParserState(Codegen::CodegenInstance* c) : cgi(c) { }
-
 		TokenList tokens;
 
 		std::map<std::string, bool> visited;
@@ -184,8 +177,6 @@ namespace Parser
 		Pin currentPos;
 		uint64_t curAttrib = 0;
 		Ast::RootAst* rootNode = 0;
-
-		Codegen::CodegenInstance* cgi = 0;
 
 		bool isParsingStruct = false;
 		bool didHaveLeftParen = false;
@@ -248,6 +239,7 @@ namespace Parser
 
 	// expressions
 	Ast::Expr*				parseExpr(ParserState& ps);
+	Ast::Expr*				parseUnaryOp(ParserState& ps);
 	Ast::Typeof*			parseTypeofExpr(ParserState& ps);
 	Ast::Expr*				parseIdentifierExpr(ParserState& ps);
 	Ast::Expr*				parseParenthesisedExpr(ParserState& ps);
@@ -265,11 +257,11 @@ namespace Parser
 
 	// statements
 	Ast::AllocStmt*			parseAlloc(ParserState& ps);
-	Ast::BreakStmt*			parseBreak(ParserState& ps);
 	Ast::IfStmt*			parseIfStmt(ParserState& ps);
 	Ast::DeallocStmt*		parseDealloc(ParserState& ps);
 	Ast::DeferredStmt*		parseDeferred(ParserState& ps);
 	Ast::WhileLoop*			parseWhileLoop(ParserState& ps);
+	Ast::BreakStmt*			parseBreakStmt(ParserState& ps);
 	Ast::ImportStmt*		parseImportStmt(ParserState& ps);
 	Ast::ReturnStmt*		parseReturnStmt(ParserState& ps);
 	Ast::BracedBlock*		parseBracedBlock(ParserState& ps);
@@ -342,9 +334,9 @@ namespace Parser
 	std::string getModuleName(std::string filename);
 	Token getNextToken(std::string& stream, Pin& pos);
 
-	std::string arithmeticOpToString(Codegen::CodegenInstance*, ArithmeticOp op);
-	ArithmeticOp mangledStringToOperator(Codegen::CodegenInstance*, std::string op);
-	std::string operatorToMangledString(Codegen::CodegenInstance*, ArithmeticOp op);
+	std::string arithmeticOpToString(TCInstance* ti, ArithmeticOp op);
+	ArithmeticOp mangledStringToOperator(TCInstance* ti, std::string op);
+	std::string operatorToMangledString(TCInstance* ti, ArithmeticOp op);
 }
 
 

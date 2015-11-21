@@ -38,23 +38,25 @@ int main(int argc, char* argv[])
 	iceAssert(llvm::InitializeNativeTargetAsmPrinter() == 0);
 
 
-
+	#if 0
 	Codegen::CodegenInstance* __cgi = new Codegen::CodegenInstance();
+	#endif
 
 	filename = Compiler::getFullPathOfFile(filename);
 	std::string curpath = Compiler::getPathFromFile(filename);
 
 	// parse and find all custom operators
-	Parser::ParserState pstate(__cgi);
+	Parser::ParserState pstate;
 
 	Parser::parseAllCustomOperators(pstate, filename, curpath);
 
 	// ret = std::tuple<RootAst*, std::vector<std::string>, std::hashmap<std::string, RootAst*>, std::hashmap<fir::Module*>>
-	auto ret = Compiler::compileFile(filename, __cgi->customOperatorMap, __cgi->customOperatorMapRev);
+
+	auto ret = Compiler::compileFile(filename, { }, { }/* __cgi->customOperatorMap,  __cgi->customOperatorMapRev */);
 
 	Compiler::compileToLlvm(filename, outname, ret);
 
-	delete __cgi;
+	// delete __cgi;
 }
 
 

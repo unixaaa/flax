@@ -17,8 +17,6 @@ namespace Ast
 
 namespace Codegen
 {
-	struct CodegenInstance;
-
 	enum class DepType
 	{
 		Invalid,
@@ -65,7 +63,7 @@ namespace Codegen
 
 namespace SemAnalysis
 {
-	Codegen::DependencyGraph* resolveDependencyGraph(Codegen::CodegenInstance* cgi, Ast::RootAst* root);
+	// Codegen::DependencyGraph* resolveDependencyGraph(Codegen::CodegenInstance* cgi, Ast::RootAst* root);
 }
 
 

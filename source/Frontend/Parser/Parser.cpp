@@ -157,7 +157,7 @@ namespace Parser
 		}
 	}
 
-	std::string arithmeticOpToString(Codegen::CodegenInstance* cgi, ArithmeticOp op)
+	std::string arithmeticOpToString(TCInstance* ti, ArithmeticOp op)
 	{
 		switch(op)
 		{
@@ -647,7 +647,7 @@ namespace Parser
 					return parseReturnStmt(ps);
 
 				case TType::Break:
-					return parseBreak(ps);
+					return parseBreakStmt(ps);
 
 				case TType::Continue:
 					return parseContinueStmt(ps);
@@ -2517,7 +2517,7 @@ namespace Parser
 
 
 
-	ArithmeticOp mangledStringToOperator(Codegen::CodegenInstance* cgi, std::string op)
+	ArithmeticOp mangledStringToOperator(TCInstance* ti, std::string op)
 	{
 		if(op == "aS")		return ArithmeticOp::Assign;
 		else if(op == "pL") return ArithmeticOp::PlusEquals;
@@ -2562,7 +2562,7 @@ namespace Parser
 		}
 	}
 
-	std::string operatorToMangledString(Codegen::CodegenInstance* cgi, ArithmeticOp op)
+	std::string operatorToMangledString(TCInstance* ti, ArithmeticOp op)
 	{
 		// see https://refspecs.linuxbase.org/cxxabi-1.75.html#mangling-operator
 		switch(op)
@@ -2641,7 +2641,7 @@ namespace Parser
 
 		Token fake;
 		fake.pin = ps.currentPos;
-		fake.text = "operator#" + operatorToMangledString(ps.cgi, ao);
+		fake.text = "operator#" + operatorToMangledString(0 /* ps.cgi */, ao);
 		fake.type = TType::Identifier;
 
 		ps.tokens.push_front(fake);

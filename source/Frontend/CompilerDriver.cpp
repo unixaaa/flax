@@ -1,4 +1,4 @@
-// Compiler.cpp
+// CompilerDriver.cpp
 // Copyright (c) 2014 - 2015, zhiayang@gmail.com
 // Licensed under the Apache License Version 2.0.
 
@@ -14,6 +14,7 @@
 #include "codegen.h"
 #include "compiler.h"
 #include "dependency.h"
+#include "typechecking.h"
 
 
 #ifndef __STDC_CONSTANT_MACROS
@@ -23,7 +24,6 @@
 #ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS
 #endif
-
 
 #include "llvm/IR/Verifier.h"
 #include "llvm/Support/SourceMgr.h"
@@ -36,17 +36,17 @@ using namespace Ast;
 
 namespace Compiler
 {
-	std::string resolveImport(Import* imp, std::string fullPath)
+	std::string resolveImport(ImportStmt* imp, std::string fullPath)
 	{
 		std::string curpath = getPathFromFile(fullPath);
 
-		if(imp->module.find("*") != (size_t) -1)
+		if(imp->moduleIdentifier.find("*") != (size_t) -1)
 		{
-			Parser::parserError("Wildcard imports are currently not supported (trying to import %s)", imp->module.c_str());
+			Parser::parserError("Wildcard imports are currently not supported (trying to import %s)", imp->moduleIdentifier.c_str());
 		}
 
 		// first check the current directory.
-		std::string modname = imp->module;
+		std::string modname = imp->moduleIdentifier;
 		for(size_t i = 0; i < modname.length(); i++)
 		{
 			if(modname[i] == '.')
@@ -78,7 +78,7 @@ namespace Compiler
 				std::string msg = "No module or library with the name '" + modname + "' could be found (no such builtin library either)";
 
 				va_list ap;
-				__error_gen(imp->pin.line + 1 /* idk why */, imp->pin.col, imp->pin.len,
+				__error_gen(imp->posinfo.line + 1 /* idk why */, imp->posinfo.col, imp->posinfo.len,
 					getFilenameFromPath(fullPath).c_str(), msg.c_str(), "Error", true, ap);
 
 				abort();
@@ -89,6 +89,7 @@ namespace Compiler
 
 
 
+	#if 0
 
 	static void cloneCGIInnards(Codegen::CodegenInstance* from, Codegen::CodegenInstance* to)
 	{
@@ -127,48 +128,68 @@ namespace Compiler
 			cgi->cloneFunctionTree(from->publicFuncTree, to->publicFuncTree, false);
 		}
 	}
+	#endif
 
-	static std::pair<Codegen::CodegenInstance*, std::string> _compileFile(std::string fpath, Codegen::CodegenInstance* rcgi, RootAst* dummyRoot)
+
+
+
+
+
+
+
+
+
+
+
+
+	ModuleInfo* doCompilation(std::string fullpath, ModuleInfo* mi)
+	{
+		TCInstance* ti = doTypechecking(mi);
+		CGInstance* ci = doCodegen(mi, ti);
+
+		(void) ci;
+
+		return mi;
+	}
+
+
+
+
+
+
+	static void copyModuleInfo(ModuleInfo* from, ModuleInfo* to)
+	{
+		to->customOperatorMap		= from->customOperatorMap;
+		to->customOperatorMapRev	= from->customOperatorMapRev;
+	}
+
+	static std::pair<ModuleInfo*, std::string> _compileFile(std::string fpath, ModuleInfo* rmi)
 	{
 		using namespace Codegen;
 		using namespace Parser;
 
-		CodegenInstance* cgi = new CodegenInstance();
-		cloneCGIInnards(rcgi, cgi);
-
-		ParserState pstate(cgi);
-
-		cgi->customOperatorMap = rcgi->customOperatorMap;
-		cgi->customOperatorMapRev = rcgi->customOperatorMapRev;
-
 		std::string curpath = Compiler::getPathFromFile(fpath);
 
+
 		// parse
-		// printf("*** start module %s\n", Compiler::getFilenameFromPath(fpath).c_str());
+		ParserState pstate;
 		RootAst* root = Parser::Parse(pstate, fpath);
-		cgi->rootNode = root;
-
-		// add the previous stuff to our own root
-		copyRootInnards(cgi, dummyRoot, root, true);
+		(void) root;
 
 
-		Codegen::doCodegen(fpath, root, cgi);
+		ModuleInfo* mi = new ModuleInfo(root);
+		copyModuleInfo(rmi, mi);	// copy from the root to the new one
+
+		iceAssert(doCompilation(fpath, mi) == mi);
+
+		copyModuleInfo(mi, rmi);	// copy back new info
 
 
 		size_t lastdot = fpath.find_last_of(".");
 		std::string oname = (lastdot == std::string::npos ? fpath : fpath.substr(0, lastdot));
 		oname += ".bc";
 
-
-
-		// add the new stuff to the main root
-		// todo: check for duplicates
-		copyRootInnards(rcgi, root, dummyRoot, true);
-
-		rcgi->customOperatorMap = cgi->customOperatorMap;
-		rcgi->customOperatorMapRev = cgi->customOperatorMapRev;
-
-		return { cgi, oname };
+		return { mi, oname };
 	}
 
 
@@ -178,8 +199,7 @@ namespace Compiler
 		using namespace Parser;
 
 		// NOTE: make sure resolveImport **DOES NOT** use codegeninstance, cuz it's 0.
-		ParserState fakeps(0);
-
+		ParserState fakeps;
 
 		fakeps.currentPos.file = new char[currentMod.length() + 1];
 		strcpy(fakeps.currentPos.file, currentMod.c_str());
@@ -201,7 +221,7 @@ namespace Compiler
 				// hack: parseImport expects front token to be "import"
 				fakeps.tokens.push_front(t);
 
-				Import* imp = parseImport(fakeps);
+				ImportStmt* imp = parseImportStmt(fakeps);
 
 				std::string file = Compiler::getFullPathOfFile(Compiler::resolveImport(imp, Compiler::getFullPathOfFile(currentMod)));
 
@@ -273,7 +293,7 @@ namespace Compiler
 					{
 						va_list ap;
 
-						__error_gen(u.second->pin.line + 1 /* idk why */, u.second->pin.col, u.second->pin.len,
+						__error_gen(u.second->posinfo.line + 1 /* idk why */, u.second->posinfo.col, u.second->posinfo.len,
 							getFilenameFromPath(u.first->name).c_str(), "", "Note", false, ap);
 					}
 				}
@@ -287,25 +307,20 @@ namespace Compiler
 		std::unordered_map<std::string, fir::Module*> modulemap;
 
 
-		RootAst* dummyRoot = new Root();
-		CodegenInstance* rcgi = new CodegenInstance();
+		RootAst* dummyRoot = new RootAst();
+		ModuleInfo* mi = new ModuleInfo(dummyRoot);
 
-		rcgi->customOperatorMap = foundOps;
-		rcgi->customOperatorMapRev = foundOpsRev;
 
 		for(auto gr : groups)
 		{
 			iceAssert(gr.size() == 1);
 			std::string name = Compiler::getFullPathOfFile(gr.front()->name);
 
-			auto pair = _compileFile(name, rcgi, dummyRoot);
-			CodegenInstance* cgi = pair.first;
+			auto pair = _compileFile(name, mi);
 
 			outlist.push_back(pair.second);
-			modulemap[name] = cgi->module;
-			rootmap[name] = cgi->rootNode;
-
-			delete cgi;
+			modulemap[name] = /* cgi->module */ 0;
+			rootmap[name] = /* cgi->rootNode */ 0;
 		}
 
 		return std::make_tuple(rootmap[Compiler::getFullPathOfFile(filename)], outlist, rootmap, modulemap);

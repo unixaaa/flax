@@ -185,8 +185,10 @@ namespace Compiler
 		Compiler::compileProgram(mod, std::get<1>(data), foldername, outname);
 	}
 
+
 	static void doGlobalConstructors(std::string filename, CompiledData& data, Ast::RootAst* root, llvm::Module* mod)
 	{
+		#if 0
 		auto& rootmap = std::get<2>(data);
 
 		bool needGlobalConstructor = false;
@@ -258,6 +260,7 @@ namespace Compiler
 				builder.CreateBr(entry);
 			}
 		}
+		#endif
 	}
 
 

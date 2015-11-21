@@ -23,16 +23,12 @@ namespace fir
 	struct IRBlock;
 }
 
+struct CGInstance;
+struct TCInstance;
+struct ModuleInfo;
+
 namespace Ast
 {
-	// struct Expr;
-	// struct Func;
-	// struct VarDecl;
-	// struct FuncDecl;
-	// struct OpOverload;
-	// struct BreakableBracedBlock;
-
-
 	extern uint64_t Attr_Invalid;
 	extern uint64_t Attr_NoMangle;
 	extern uint64_t Attr_VisPublic;
@@ -95,7 +91,6 @@ namespace Codegen
 
 	// typedef std::pair<Ast::BreakableBracedBlock*, std::pair<fir::IRBlock*, fir::IRBlock*>> BracedBlockScope;
 
-	// struct CodegenInstance;
 	// struct FunctionTree;
 
 

@@ -7,12 +7,8 @@
 #include <stdint.h>
 #include <string>
 
+#include "defs.h"
 #include "dependency.h"
-
-namespace Codegen
-{
-	struct CodegenInstance;
-}
 
 namespace Ast
 {
@@ -45,8 +41,8 @@ struct VarDef
 
 namespace SemAnalysis
 {
-	void rewriteDotOperators(Codegen::CodegenInstance* cgi);
-	void analyseVarUsage(Codegen::CodegenInstance* cgi);
+	void rewriteDotOperators(TCInstance* ti);
+	void analyseVarUsage(TCInstance* ti);
 }
 
 

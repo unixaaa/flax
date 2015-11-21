@@ -25,12 +25,45 @@ namespace Parser
 	struct Token;
 }
 
+
+struct ModuleInfo
+{
+	ModuleInfo(Ast::RootAst* root) : rootAst(root) { }
+
+	// ast stuff
+	Ast::RootAst* rootAst = 0;
+
+	// llvm stuff
+	fir::Module* fmodule = 0;
+
+	// custom operator stuff
+	std::map<ArithmeticOp, std::pair<std::string, int>> customOperatorMap;
+	std::map<std::string, ArithmeticOp> customOperatorMapRev;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 namespace Compiler
 {
 	typedef std::tuple<Ast::RootAst*, std::vector<std::string>, std::unordered_map<std::string, Ast::RootAst*>, std::unordered_map<std::string, fir::Module*>> CompiledData;
 
 	CompiledData compileFile(std::string filename, std::map<ArithmeticOp, std::pair<std::string, int>> foundOps,
 		std::map<std::string, ArithmeticOp> foundOpsRev);
+
+
+	ModuleInfo* doCompilation(std::string filename, ModuleInfo* mi);
 
 	void compileToLlvm(std::string filename, std::string outname, CompiledData data);
 

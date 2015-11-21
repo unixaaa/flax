@@ -19,16 +19,16 @@ namespace Ast
 
 namespace Codegen
 {
-	struct CodegenInstance;
 	enum class TypeKind;
 }
 
+struct TCInstance;
 namespace TypeInfo
 {
-	void addNewType(Codegen::CodegenInstance* cgi, fir::Type* stype, Ast::StructBase* str, Codegen::TypeKind etype);
-	void initialiseTypeInfo(Codegen::CodegenInstance* cgi);
-	void generateTypeInfo(Codegen::CodegenInstance* cgi);
-	size_t getIndexForType(Codegen::CodegenInstance* cgi, fir::Type* type);
+	void addNewType(TCInstance* ti, fir::Type* stype, Ast::StructBase* str, Codegen::TypeKind etype);
+	void initialiseTypeInfo(TCInstance* ti);
+	void generateTypeInfo(TCInstance* ti);
+	size_t getIndexForType(TCInstance* ti, fir::Type* type);
 }
 
 
