@@ -36,24 +36,34 @@ namespace Ast
 	// literals
 	struct StringLiteral : Expr
 	{
-		StringLiteral(Parser::Pin pos) : Expr(pos) { }
+		StringLiteral(Parser::Pin pos, std::string str) : Expr(pos),
+			text(str) { }
+
 		virtual ~StringLiteral() override { }
 
 		std::string text;
+
+		bool isRawString = false;
 	};
 
 	struct NumberLiteral : Expr
 	{
+		NumberLiteral(Parser::Pin pos, bool floating) : Expr(pos),
+			isFloating(floating) { }
+
 		virtual ~NumberLiteral() override { }
 
+		bool isFloating = false;
+
 		double floatingValue = 0;
-		int64_t signedValue = 0;
-		uint64_t unsignedValue = 0;
+		int64_t integerValue = 0;
 	};
 
 	struct BooleanLiteral : Expr
 	{
-		BooleanLiteral(Parser::Pin pos, bool val) : Expr(pos), value(val) { }
+		BooleanLiteral(Parser::Pin pos, bool val) : Expr(pos),
+			value(val) { }
+
 		virtual ~BooleanLiteral() override { }
 
 		bool value;
@@ -61,6 +71,9 @@ namespace Ast
 
 	struct ArrayLiteral : Expr
 	{
+		ArrayLiteral(Parser::Pin pos, std::deque<Expr*> vals) : Expr(pos),
+			values(vals) { }
+
 		virtual ~ArrayLiteral() override { }
 
 		std::deque<Expr*> values;
@@ -68,7 +81,9 @@ namespace Ast
 
 	struct TupleLiteral : Expr
 	{
-		TupleLiteral(Parser::Pin pos, std::deque<Expr*> vals) : Expr(pos), values(vals) { }
+		TupleLiteral(Parser::Pin pos, std::deque<Expr*> vals) : Expr(pos),
+			values(vals) { }
+
 		virtual ~TupleLiteral() override { }
 
 		std::deque<Expr*> values;
@@ -79,7 +94,9 @@ namespace Ast
 
 	struct VarRef : Expr
 	{
-		VarRef(Parser::Pin pos, std::string n) : Expr(pos), name(n) { }
+		VarRef(Parser::Pin pos, std::string n) : Expr(pos),
+			name(n) { }
+
 		virtual ~VarRef() override { }
 
 		std::string name;
@@ -87,7 +104,9 @@ namespace Ast
 
 	struct UnaryOp : Expr
 	{
-		UnaryOp(Parser::Pin pos, ArithmeticOp o, Expr* e) : Expr(pos), op(o), expression(e) { }
+		UnaryOp(Parser::Pin pos, ArithmeticOp o, Expr* e) : Expr(pos),
+			op(o), expression(e) { }
+
 		virtual ~UnaryOp() override { }
 
 		ArithmeticOp op;
@@ -96,7 +115,9 @@ namespace Ast
 
 	struct BinaryOp : Expr
 	{
-		BinaryOp(Parser::Pin pos, ArithmeticOp o, Expr* lhs, Expr* rhs) : Expr(pos), op(o), leftExpr(lhs), rightExpr(rhs) { }
+		BinaryOp(Parser::Pin pos, ArithmeticOp o, Expr* lhs, Expr* rhs) : Expr(pos),
+			op(o), leftExpr(lhs), rightExpr(rhs) { }
+
 		virtual ~BinaryOp() override { }
 
 		ArithmeticOp op;
@@ -106,7 +127,9 @@ namespace Ast
 
 	struct SubscriptOp : Expr
 	{
-		SubscriptOp(Parser::Pin pos, Expr* e, std::deque<Expr*> i) : Expr(pos), expr(e), indices(i) { }
+		SubscriptOp(Parser::Pin pos, Expr* e, std::deque<Expr*> i) : Expr(pos),
+			expr(e), indices(i) { }
+
 		virtual ~SubscriptOp() override { }
 
 		Expr* expr = 0;
@@ -115,7 +138,9 @@ namespace Ast
 
 	struct DotOp : Expr
 	{
-		DotOp(Parser::Pin pos, Expr* lhs, Expr* rhs) : Expr(pos), leftExpr(lhs), rightExpr(rhs) { }
+		DotOp(Parser::Pin pos, Expr* lhs, Expr* rhs) : Expr(pos),
+			leftExpr(lhs), rightExpr(rhs) { }
+
 		virtual ~DotOp() override { }
 
 		Expr* leftExpr = 0;
@@ -124,17 +149,23 @@ namespace Ast
 
 	struct FuncCall : Expr
 	{
+		FuncCall(Parser::Pin pos, std::string n, std::deque<Expr*> args) : Expr(pos),
+			name(n), arguments(args) { }
+
 		virtual ~FuncCall() override { }
 
-		std::string functionName;
+		std::string name;
 		std::deque<Expr*> arguments;
 	};
 
 	struct Typeof : Expr
 	{
+		Typeof(Parser::Pin pos, Expr* e) : Expr(pos),
+			expr(e) { }
+
 		virtual ~Typeof() override { }
 
-		Expr* expression = 0;
+		Expr* expr = 0;
 	};
 
 
@@ -150,49 +181,92 @@ namespace Ast
 	// statements etc.
 	struct ImportStmt : Expr
 	{
+		ImportStmt(Parser::Pin pos, std::string imp) : Expr(pos),
+			moduleIdentifier(imp) { }
+
 		virtual ~ImportStmt() override { }
 
 		std::string moduleIdentifier;
 	};
 
+	struct BracedBlock;
 	struct IfStmt : Expr
 	{
+		typedef std::pair<Expr*, BracedBlock*> CondBlockPair;
+
+		IfStmt(Parser::Pin pos, std::deque<CondBlockPair> conds, BracedBlock* ec) : Expr(pos),
+			cases(conds), elseCase(ec) { }
+
 		virtual ~IfStmt() override { }
+
+
+		std::deque<CondBlockPair> cases;
+		BracedBlock* elseCase = 0;
 	};
 
 	struct WhileLoop : Expr
 	{
+		WhileLoop(Parser::Pin pos, Expr* cond, BracedBlock* body, bool kind) : Expr(pos),
+			loopCondition(cond), loopBody(body), isDoWhile(kind) { }
+
 		virtual ~WhileLoop() override { }
+
+		Expr* loopCondition = 0;
+		BracedBlock* loopBody = 0;
+
+		bool isDoWhile = false;
 	};
 
 	struct BreakStmt : Expr
 	{
+		BreakStmt(Parser::Pin pos) : Expr(pos) { }
 		virtual ~BreakStmt() override { }
 	};
 
 	struct ContinueStmt : Expr
 	{
+		ContinueStmt(Parser::Pin pos) : Expr(pos) { }
 		virtual ~ContinueStmt() override { }
 	};
 
 	struct ReturnStmt : Expr
 	{
+		ReturnStmt(Parser::Pin pos, Expr* e) : Expr(pos),
+			returnValue(e) { }
+
 		virtual ~ReturnStmt() override { }
+
+		Expr* returnValue = 0;
 	};
 
 	struct AllocStmt : Expr
 	{
+		AllocStmt(Parser::Pin pos) : Expr(pos) { }
 		virtual ~AllocStmt() override { }
+
+		std::string type;
+		std::deque<Expr*> counts;
+		std::deque<Expr*> initArguments;
 	};
 
 	struct DeallocStmt : Expr
 	{
+		DeallocStmt(Parser::Pin pos, Expr* e) : Expr(pos),
+			expr(e) { }
+
 		virtual ~DeallocStmt() override { }
+
+		Expr* expr = 0;
 	};
 
 	struct DeferredStmt : Expr
 	{
+		DeferredStmt(Parser::Pin pos, Expr* e) : Expr(pos),
+			deferred(e) { }
+
 		virtual ~DeferredStmt() override { }
+
+		Expr* deferred = 0;
 	};
 
 	struct BracedBlock : Expr
@@ -213,7 +287,9 @@ namespace Ast
 	// declarations
 	struct VarDecl : Expr
 	{
-		VarDecl(Parser::Pin pos, std::string n, bool immut) : Expr(pos), name(n), isImmutable(immut) { }
+		VarDecl(Parser::Pin pos, std::string n, bool immut) : Expr(pos),
+			name(n), isImmutable(immut) { }
+
 		virtual ~VarDecl() override { }
 
 		std::string type;
@@ -254,30 +330,120 @@ namespace Ast
 
 
 
+	// definitions
+	struct FunctionDef : Expr
+	{
+		FunctionDef(Parser::Pin pos, FuncDecl* decl, BracedBlock* block) : Expr(pos),
+			funcDecl(decl), funcBody(block) { }
+
+		virtual ~FunctionDef() override { }
+
+		FuncDecl* funcDecl = 0;
+		BracedBlock* funcBody = 0;
+	};
+
+	struct OpOverloadDef : Expr
+	{
+		OpOverloadDef(Parser::Pin pos, ArithmeticOp o) : Expr(pos),
+			op(o) { }
+
+		virtual ~OpOverloadDef() override { }
+
+		ArithmeticOp op;
+		FunctionDef* function = 0;
+
+		bool isBinaryOp = false;
+		bool belongsToType = false;
+		bool isCommutativeOp = false;
+
+		uint64_t attributes = 0;
+	};
+
+	struct TypeAliasDef : Expr
+	{
+		TypeAliasDef(Parser::Pin pos) : Expr(pos) { }
+		virtual ~TypeAliasDef() override { }
+
+		std::string actualType;
+		std::string newTypeName;
+
+		bool isStrongAlias = false;
+	};
+
+	struct NamespaceDef : Expr
+	{
+		NamespaceDef(Parser::Pin pos, std::string n, BracedBlock* b) : Expr(pos),
+			name(n), body(b) { }
+
+		virtual ~NamespaceDef() override { }
+
+		std::string name;
+		BracedBlock* body = 0;
+	};
+
+
+
+
+
+
+
+
 
 	// large things
+	struct OpOverloadDef;
 	struct CompoundType : Expr
 	{
+		CompoundType(Parser::Pin pos, std::string n) : Expr(pos),
+			name(n) { }
+
 		virtual ~CompoundType() override { }
+
+		std::string name;
+		std::deque<std::string> typeParameters;
+
+		uint64_t attributes = 0;
+
+		std::deque<VarDecl*> members;
+		std::deque<OpOverloadDef*> operatorOverloads;
 	};
 
 	struct StructDef : CompoundType
 	{
+		StructDef(Parser::Pin pos, std::string n) : CompoundType(pos, n) { }
 		virtual ~StructDef() override { }
+
+		bool isPackedStruct = false;
 	};
 
 	struct EnumerationDef : CompoundType
 	{
+		typedef std::pair<std::string, Expr*> EnumCase;
+
+		EnumerationDef(Parser::Pin pos, std::string n) : CompoundType(pos, n) { }
 		virtual ~EnumerationDef() override { }
+
+		bool isStrongEnumeration = false;
+
+		std::deque<EnumCase> enumCases;
 	};
 
+	struct ClassPropertyDef;
 	struct ClassDef : CompoundType
 	{
+		ClassDef(Parser::Pin pos, std::string n) : CompoundType(pos, n) { }
 		virtual ~ClassDef() override { }
+
+		std::deque<FunctionDef*> functions;
+		std::deque<ClassPropertyDef*> properties;
+
+		std::deque<ClassDef*> nestedTypes;
+
+		std::deque<std::string> conformingProtocols;
 	};
 
-	struct ExtensionDef : CompoundType
+	struct ExtensionDef : ClassDef
 	{
+		ExtensionDef(Parser::Pin pos, std::string n) : ClassDef(pos, n) { }
 		virtual ~ExtensionDef() override { }
 	};
 
@@ -297,32 +463,6 @@ namespace Ast
 
 
 
-
-
-
-	struct FunctionDef : Expr
-	{
-		FunctionDef(Parser::Pin pos, FuncDecl* decl, BracedBlock* block) : Expr(pos), funcDecl(decl), funcBody(block) { }
-		virtual ~FunctionDef() override { }
-
-		FuncDecl* funcDecl = 0;
-		BracedBlock* funcBody = 0;
-	};
-
-	struct OpOverloadDef : Expr
-	{
-		virtual ~OpOverloadDef() override { }
-	};
-
-	struct TypeAliasDef : Expr
-	{
-		virtual ~TypeAliasDef() override { }
-	};
-
-	struct NamespaceDef : Expr
-	{
-		virtual ~NamespaceDef() override { }
-	};
 
 
 

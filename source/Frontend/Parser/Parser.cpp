@@ -1726,7 +1726,7 @@ namespace Parser
 		{
 			// alloc[...] Foo(...)
 			FuncCall* fc = parseFuncCall(ps, type);
-			ret->params = fc->params;
+			ret->initArguments = fc->arguments;
 		}
 
 		ret->type = type;
@@ -1749,20 +1749,16 @@ namespace Parser
 		if(ps.front().type == TType::Integer)
 		{
 			Token tok = ps.eat();
-			n = CreateAST(NumberLiteral, tok, getIntegerValue(tok));
+			n = CreateAST(NumberLiteral, tok, false);
+			n->integerValue = getIntegerValue(tok);
 
 			// todo: handle integer suffixes
-			n->type = "Int64";
-
-			// set the type.
-			// always used signed
 		}
 		else if(ps.front().type == TType::Decimal)
 		{
 			Token tok = ps.eat();
-			n = CreateAST(NumberLiteral, tok, getDecimalValue(tok));
-
-			n->type = "Float64";
+			n = CreateAST(NumberLiteral, tok, true);
+			n->floatingValue = getDecimalValue(tok);
 		}
 		else
 		{
@@ -1791,7 +1787,7 @@ namespace Parser
 				if(arg == nullptr)
 					return nullptr;
 
-				paramlen += arg->pin.len;
+				paramlen += arg->posinfo.len;
 
 				args.push_back(arg);
 				if(ps.front().type == TType::RParen)
@@ -1923,7 +1919,7 @@ namespace Parser
 		}
 	}
 
-	static void parseInheritanceList(ParserState& ps, CompoundType* cls)
+	static void parseInheritanceList(ParserState& ps, ClassDef* cls)
 	{
 		while(true)
 		{
@@ -1931,13 +1927,13 @@ namespace Parser
 			if(id.type != TType::Identifier)
 				parserError("Expected identifier after ':' in struct or class declaration");
 
-			if(std::find(cls->protocolstrs.begin(), cls->protocolstrs.end(), id.text) != cls->protocolstrs.end())
+			if(std::find(cls->conformingProtocols.begin(), cls->conformingProtocols.end(), id.text) != cls->conformingProtocols.end())
 				parserError("Duplicate member %s in inheritance list", id.text.c_str());
 
 			if(cls->name == id.text)
 				parserError("Self inheritance is illegal");
 
-			cls->protocolstrs.push_back(id.text);
+			cls->conformingProtocols.push_back(id.text);
 			ps.skipNewline();
 
 			if(ps.front().type != TType::Comma)
@@ -1947,15 +1943,15 @@ namespace Parser
 		}
 	}
 
-	static void parseGenericTypeList(ParserState& ps, CompoundType* sb)
+	static void parseGenericTypeList(ParserState& ps, CompoundType* ct)
 	{
 		while(true)
 		{
 			Token type = ps.eat();
-			if(std::find(sb->genericTypes.begin(), sb->genericTypes.end(), type.text) != sb->genericTypes.end())
+			if(std::find(ct->typeParameters.begin(), ct->typeParameters.end(), type.text) != ct->typeParameters.end())
 				parserError("Duplicate generic type %s", type.text.c_str());
 
-			sb->genericTypes.push_back(type.text);
+			ct->typeParameters.push_back(type.text);
 
 			if(ps.front().type == TType::Comma)
 				ps.eat();
@@ -1991,9 +1987,9 @@ namespace Parser
 
 		uint64_t attr = checkAndApplyAttributes(ps, Attr_PackedStruct | Attr_VisPublic | Attr_VisInternal | Attr_VisPrivate);
 		if(attr & Attr_PackedStruct)
-			str->packed = true;
+			str->isPackedStruct = true;
 
-		str->attribs = attr;
+		str->attributes = attr;
 
 		// check for a colon.
 		ps.skipNewline();
@@ -2013,33 +2009,25 @@ namespace Parser
 
 		// parse a block.
 		BracedBlock* body = parseBracedBlock(ps);
-		int i = 0;
 		for(Expr* stmt : body->statements)
 		{
 			if(VarDecl* var = dynamic_cast<VarDecl*>(stmt))
 			{
-				if(str->nameMap.find(var->name) != str->nameMap.end())
-					parserError("Duplicate member '%s'", var->name.c_str());
+				for(auto m : str->members)
+				{
+					if(m->name == var->name)
+						parserError("Duplicate member '%s'", var->name.c_str());
+				}
 
 				str->members.push_back(var);
-
-				// don't take up space in the struct if it's static.
-				if(!var->isStatic)
-				{
-					str->nameMap[var->name] = i;
-					i++;
-				}
-				else
-				{
-				}
 			}
 			else if(OpOverloadDef* oo = dynamic_cast<OpOverloadDef*>(stmt))
 			{
-				str->opOverloads.push_back(oo);
+				str->operatorOverloads.push_back(oo);
 			}
 			else if(FunctionDef* fn = dynamic_cast<FunctionDef*>(stmt))
 			{
-				parserError(fn->pin, "structs cannot contain functions");
+				parserError(fn->posinfo, "Structs cannot contain functions");
 			}
 			else
 			{
@@ -2071,7 +2059,7 @@ namespace Parser
 		ClassDef* cls = CreateAST(ClassDef, tok_id, id);
 
 		uint64_t attr = checkAndApplyAttributes(ps, Attr_VisPublic | Attr_VisInternal | Attr_VisPrivate);
-		cls->attribs = attr;
+		cls->attributes = attr;
 
 		// check for a colon.
 		ps.skipNewline();
@@ -2093,47 +2081,40 @@ namespace Parser
 
 		// parse a block.
 		BracedBlock* body = parseBracedBlock(ps);
-		int i = 0;
 		for(Expr* stmt : body->statements)
 		{
-			if(ClassPropertyDef* cprop = dynamic_cast<ClassPropertyDef*>(stmt))
+			if(ClassPropertyDef* prop = dynamic_cast<ClassPropertyDef*>(stmt))
 			{
-				for(ClassPropertyDef* c : cls->cprops)
+				for(ClassPropertyDef* c : cls->properties)
 				{
-					if(c->name == cprop->name)
-						parserError("Duplicate member '%s'", cprop->name.c_str());
+					if(c->name == prop->name)
+						parserError("Duplicate property '%s'", prop->name.c_str());
 				}
 
-				cls->cprops.push_back(cprop);
+				cls->properties.push_back(prop);
 			}
 			else if(VarDecl* var = dynamic_cast<VarDecl*>(stmt))
 			{
-				if(cls->nameMap.find(var->name) != cls->nameMap.end())
-					parserError("Duplicate member '%s'", var->name.c_str());
+				for(VarDecl* v : cls->members)
+				{
+					if(v->name == var->name)
+						parserError("Duplicate member '%s'", var->name.c_str());
+				}
 
 				cls->members.push_back(var);
-
-				// don't take up space in the struct if it's static.
-				if(!var->isStatic)
-				{
-					cls->nameMap[var->name] = i;
-					i++;
-				}
 			}
 			else if(FunctionDef* func = dynamic_cast<FunctionDef*>(stmt))
 			{
-				cls->funcs.push_back(func);
+				cls->functions.push_back(func);
 			}
 			else if(OpOverloadDef* oo = dynamic_cast<OpOverloadDef*>(stmt))
 			{
-				cls->opOverloads.push_back(oo);
-
-				cls->funcs.push_back(oo->func);
+				cls->operatorOverloads.push_back(oo);
 			}
 			else if(CompoundType* sb = dynamic_cast<CompoundType*>(stmt))
 			{
 				if(ClassDef* nested = dynamic_cast<ClassDef*>(sb))
-					cls->nestedTypes.push_back({ nested, 0 });
+					cls->nestedTypes.push_back(nested);
 
 				else
 					parserError("Only class definitions can be nested within other types");
@@ -2161,14 +2142,13 @@ namespace Parser
 		ExtensionDef* ext = CreateAST(ExtensionDef, tok_ext, "");
 		ClassDef* cls = parseClass(ps);
 
-		ext->attribs		= cls->attribs;
-		ext->funcs			= cls->funcs;
-		ext->opOverloads	= cls->opOverloads;
-		ext->members		= cls->members;
-		ext->nameMap		= cls->nameMap;
-		ext->name			= cls->name;
-		ext->cprops			= cls->cprops;
-		ext->protocolstrs	= cls->protocolstrs;
+		ext->attributes				= cls->attributes;
+		ext->functions				= cls->functions;
+		ext->operatorOverloads		= cls->operatorOverloads;
+		ext->members				= cls->members;
+		ext->name					= cls->name;
+		ext->properties				= cls->properties;
+		ext->conformingProtocols	= cls->conformingProtocols;
 
 		delete cls;
 		return ext;
@@ -2201,7 +2181,7 @@ namespace Parser
 
 		uint64_t attr = checkAndApplyAttributes(ps, Attr_StrongTypeAlias | Attr_VisPublic | Attr_VisInternal | Attr_VisPrivate);
 		if(attr & Attr_StrongTypeAlias)
-			enumer->isStrong = true;
+			enumer->isStrongEnumeration = true;
 
 		// parse the stuff.
 		bool isFirst = true;
@@ -2239,7 +2219,7 @@ namespace Parser
 				{
 					int64_t val = 0;
 					if(prevNumber)
-						val = prevNumber->ival + 1;
+						val = prevNumber->integerValue + 1;
 
 					// increment it.
 					prevNumber = CreateAST(NumberLiteral, front, val);
@@ -2266,7 +2246,7 @@ namespace Parser
 			front = ps.front();
 
 			iceAssert(value);
-			enumer->cases.push_back(std::make_pair(eName, value));
+			enumer->enumCases.push_back(std::make_pair(eName, value));
 
 			isFirst = false;
 
@@ -2435,7 +2415,6 @@ namespace Parser
 			ps.pop_front();
 		}
 
-		// NOTE: make sure printAst doesn't touch 'cgi', because this will break to hell.
 		return CreateAST(ImportStmt, tok_mod, s);
 	}
 
@@ -2451,7 +2430,7 @@ namespace Parser
 
 		uint64_t attr = checkAndApplyAttributes(ps, Attr_RawString);
 		if(attr & Attr_RawString)
-			ret->isRaw = true;
+			ret->isRawString = true;
 
 		return ret;
 	}
@@ -2466,15 +2445,14 @@ namespace Parser
 		if(ps.eat().type != TType::Equal)
 			parserError("Expected '='");
 
+		auto ret = CreateAST(TypeAliasDef, tok_name);
 
-		auto ret = CreateAST(TypeAliasDef, tok_name, tok_name.text, "");
-
-		std::string origType = parseType(ps);
-		ret->origType = origType;
+		ret->newTypeName = tok_name.text;
+		ret->actualType = parseType(ps);
 
 		uint64_t attr = checkAndApplyAttributes(ps, Attr_StrongTypeAlias);
 		if(attr & Attr_StrongTypeAlias)
-			ret->isStrong = true;
+			ret->isStrongAlias = true;
 
 		return ret;
 	}
@@ -2670,10 +2648,10 @@ namespace Parser
 
 		// parse a func declaration.
 		uint64_t attr = checkAndApplyAttributes(ps, Attr_VisPublic | Attr_VisInternal | Attr_VisPrivate | Attr_CommutativeOp);
-		oo->func = parseFunction(ps);
-		oo->func->decl->attribs = attr & ~Attr_CommutativeOp;
+		oo->function = parseFunction(ps);
+		oo->function->funcDecl->attributes = attr & ~Attr_CommutativeOp;
 
-		oo->attribs = attr;
+		oo->attributes = attr;
 
 		// check number of arguments
 		// note: this is without the "self" parameter, so args == 1 --> binop
@@ -2683,41 +2661,41 @@ namespace Parser
 
 		if(attr & Attr_CommutativeOp)
 		{
-			oo->isCommutative = true;
+			oo->isCommutativeOp = true;
 		}
 
 		if(ps.isParsingStruct)
 		{
-			oo->isInType = true;
-			if(oo->func->decl->params.size() == 1)
+			oo->belongsToType = true;
+			if(oo->function->funcDecl->arguments.size() == 1)
 			{
-				oo->isBinOp = true;
+				oo->isBinaryOp = true;
 			}
-			else if(oo->func->decl->params.size() == 0)
+			else if(oo->function->funcDecl->arguments.size() == 0)
 			{
-				oo->isBinOp = false;
+				oo->isBinaryOp = false;
 			}
 			else
 			{
 				parserError(ps, "Invalid number of parameters to operator overload; expected 0 or 1, got %zu",
-					oo->func->decl->params.size());
+					oo->function->funcDecl->arguments.size());
 			}
 		}
 		else
 		{
-			oo->isInType = false;
-			if(oo->func->decl->params.size() == 2)
+			oo->belongsToType = false;
+			if(oo->function->funcDecl->arguments.size() == 2)
 			{
-				oo->isBinOp = true;
+				oo->isBinaryOp = true;
 			}
-			else if(oo->func->decl->params.size() == 1)
+			else if(oo->function->funcDecl->arguments.size() == 1)
 			{
-				oo->isBinOp = false;
+				oo->isBinaryOp = false;
 			}
 			else
 			{
 				parserError(ps, "Invalid number of parameters to operator overload; expected 1 or 2, got %zu",
-					oo->func->decl->params.size());
+					oo->function->funcDecl->arguments.size());
 			}
 		}
 
