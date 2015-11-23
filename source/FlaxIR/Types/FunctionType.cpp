@@ -4,11 +4,6 @@
 
 #include "ir/type.h"
 
-namespace Codegen
-{
-	std::string unwrapPointerType(std::string, int*);
-}
-
 namespace fir
 {
 	FunctionType::FunctionType(std::deque<Type*> args, Type* ret, bool isva) : Type(FTypeKind::Function)

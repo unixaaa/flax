@@ -54,9 +54,7 @@ int main(int argc, char* argv[])
 
 	auto ret = Compiler::compileFile(filename, { }, { }/* __cgi->customOperatorMap,  __cgi->customOperatorMapRev */);
 
-	Compiler::compileToLlvm(filename, outname, ret);
-
-	// delete __cgi;
+	// Compiler::compileToLlvm(filename, outname, ret);
 }
 
 

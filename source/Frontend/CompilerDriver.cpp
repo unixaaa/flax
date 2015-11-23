@@ -145,9 +145,10 @@ namespace Compiler
 	ModuleInfo* doCompilation(std::string fullpath, ModuleInfo* mi)
 	{
 		TCInstance* ti = doTypechecking(mi);
-		CGInstance* ci = doCodegen(mi, ti);
+		iceAssert(ti != 0);
 
-		(void) ci;
+		CGInstance* ci = doCodegen(mi, ti);
+		iceAssert(ci != 0);
 
 		return mi;
 	}
@@ -191,6 +192,24 @@ namespace Compiler
 
 		return { mi, oname };
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	static void _resolveImportGraph(Codegen::DependencyGraph* g, std::unordered_map<std::string, bool>& visited, std::string currentMod,
@@ -307,8 +326,19 @@ namespace Compiler
 		std::unordered_map<std::string, fir::Module*> modulemap;
 
 
-		RootAst* dummyRoot = new RootAst();
+		RootAst* dummyRoot = new RootAst(Parser::Pin());
 		ModuleInfo* mi = new ModuleInfo(dummyRoot);
+
+		// if groups.size == 0, then we didn't import anything.
+		if(groups.size() == 0)
+		{
+			std::deque<DepNode*> fakes;
+			DepNode* dn = new DepNode();
+			dn->name = filename;
+
+			fakes.push_back(dn);
+			groups.push_back(fakes);
+		}
 
 
 		for(auto gr : groups)
@@ -476,6 +506,241 @@ namespace Compiler
 		return ret;
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+namespace GenError
+{
+	void printContext(std::string file, uint64_t line, uint64_t col, uint64_t len)
+	{
+		std::vector<std::string> lines = Compiler::getFileLines(file);
+		if(lines.size() > line - 1)
+		{
+			std::string orig = lines[line - 1];
+			std::string ln;
+
+			for(auto c : orig)
+			{
+				if(c == '\t')
+				{
+					for(size_t i = 0; i < TAB_WIDTH; i++)
+						ln += " ";
+				}
+				else
+				{
+					ln += c;
+				}
+			}
+
+
+			fprintf(stderr, "%s\n", ln.c_str());
+
+			for(uint64_t i = 1; i < col - 1; i++)
+			{
+				if(ln[i - 1] == '\t')
+				{
+					for(size_t i = 0; i < TAB_WIDTH; i++)
+						fprintf(stderr, " ");
+				}
+				else
+				{
+					fprintf(stderr, " ");
+				}
+			}
+
+			std::string tildes;
+			// for(size_t i = 0; i < len; i++)
+			// 	tildes += "~";
+
+			fprintf(stderr, "%s^%s%s", COLOUR_GREEN_BOLD, tildes.c_str(), COLOUR_RESET);
+		}
+		else
+		{
+			fprintf(stderr, "(no context)");
+		}
+	}
+
+	void printContext(Expr* e)
+	{
+		if(e->posinfo.line > 0)
+			printContext(e->posinfo.file, e->posinfo.line, e->posinfo.col, e->posinfo.len);
+	}
+}
+
+
+void __error_gen(uint64_t line, uint64_t col, uint64_t len, const char* file, const char* msg,
+	const char* type, bool doExit, va_list ap)
+{
+	if(strcmp(type, "Warning") == 0 && Compiler::getFlag(Compiler::Flag::NoWarnings))
+		return;
+
+
+	char* alloc = nullptr;
+	vasprintf(&alloc, msg, ap);
+
+	auto colour = COLOUR_RED_BOLD;
+	if(strcmp(type, "Warning") == 0)
+		colour = COLOUR_MAGENTA_BOLD;
+
+	else if(strcmp(type, "Note") == 0)
+		colour = COLOUR_GREY_BOLD;
+
+	// todo: do we want to truncate the file path?
+	// we're doing it now, might want to change (or use a flag)
+
+	std::string filename = Compiler::getFilenameFromPath(file);
+
+	if(line > 0 && col > 0)
+		fprintf(stderr, "%s(%s:%" PRIu64 ":%" PRIu64 ") ", COLOUR_BLACK_BOLD, filename.c_str(), line, col);
+
+	fprintf(stderr, "%s%s%s: %s\n", colour, type, COLOUR_RESET, alloc);
+
+	if(line > 0 && col > 0)
+	{
+		std::vector<std::string> lines;
+		if(strcmp(file, "") != 0)
+		{
+			GenError::printContext(file, line, col, len);
+		}
+	}
+
+	fprintf(stderr, "\n");
+
+	va_end(ap);
+	free(alloc);
+
+	if(doExit)
+	{
+		fprintf(stderr, "There were errors, compilation cannot continue\n");
+		abort();
+	}
+	else if(strcmp(type, "Warning") == 0 && Compiler::getFlag(Compiler::Flag::WarningsAsErrors))
+	{
+		error("Treating warning as error because -Werror was passed");
+	}
+}
+
+void error(Expr* relevantast, const char* msg, ...)
+{
+	va_list ap;
+	va_start(ap, msg);
+
+	const char* file	= relevantast ? relevantast->posinfo.file : "";
+	uint64_t line		= relevantast ? relevantast->posinfo.line : 0;
+	uint64_t col		= relevantast ? relevantast->posinfo.col : 0;
+	uint64_t len		= relevantast ? relevantast->posinfo.len : 0;
+
+	__error_gen(line, col, len, file, msg, "Error", true, ap);
+	va_end(ap);
+	abort();
+}
+
+void error(const char* msg, ...)
+{
+	va_list ap;
+	va_start(ap, msg);
+	__error_gen(0, 0, 0, "", msg, "Error", true, ap);
+	va_end(ap);
+	abort();
+}
+
+
+
+
+
+
+
+void warn(const char* msg, ...)
+{
+	va_list ap;
+	va_start(ap, msg);
+	__error_gen(0, 0, 0, "", msg, "Warning", false, ap);
+	va_end(ap);
+}
+
+void warn(Expr* relevantast, const char* msg, ...)
+{
+	va_list ap;
+	va_start(ap, msg);
+
+	const char* file	= relevantast ? relevantast->posinfo.file : "";
+	uint64_t line		= relevantast ? relevantast->posinfo.line : 0;
+	uint64_t col		= relevantast ? relevantast->posinfo.col : 0;
+	uint64_t len		= relevantast ? relevantast->posinfo.len : 0;
+
+	__error_gen(line, col, len, file, msg, "Warning", false, ap);
+	va_end(ap);
+}
+
+
+
+void info(const char* msg, ...)
+{
+	va_list ap;
+	va_start(ap, msg);
+	__error_gen(0, 0, 0, "", msg, "Note", false, ap);
+	va_end(ap);
+}
+
+void info(Expr* relevantast, const char* msg, ...)
+{
+	va_list ap;
+	va_start(ap, msg);
+
+	const char* file	= relevantast ? relevantast->posinfo.file : "";
+	uint64_t line		= relevantast ? relevantast->posinfo.line : 0;
+	uint64_t col		= relevantast ? relevantast->posinfo.col : 0;
+	uint64_t len		= relevantast ? relevantast->posinfo.len : 0;
+
+	__error_gen(line, col, len, file, msg, "Note", false, ap);
+	va_end(ap);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

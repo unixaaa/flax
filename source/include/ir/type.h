@@ -86,7 +86,8 @@ namespace fir
 
 		// stuff
 		static Type* fromBuiltin(std::string builtin, FTContext* tc = 0);
-		static Type* fromLlvmType(fir::Type* ltype, std::deque<bool> signage);
+		static std::string unwrapPointerType(std::string type, int* _indirections);
+
 
 		static bool areTypesEqual(Type* a, Type* b);
 

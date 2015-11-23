@@ -5,11 +5,6 @@
 #include "compiler.h"
 #include "ir/type.h"
 
-namespace Codegen
-{
-	std::string unwrapPointerType(std::string, int*);
-}
-
 namespace fir
 {
 	// NOTE: some global state.
@@ -281,6 +276,33 @@ namespace fir
 	}
 
 
+
+
+
+
+
+
+	std::string Type::unwrapPointerType(std::string type, int* _indirections)
+	{
+		std::string sptr = std::string("*");
+		size_t ptrStrLength = sptr.length();
+
+		int tmp = 0;
+		if(!_indirections)
+			_indirections = &tmp;
+
+		std::string actualType = type;
+		if(actualType.length() > ptrStrLength && std::equal(sptr.rbegin(), sptr.rend(), actualType.rbegin()))
+		{
+			int& indirections = *_indirections;
+
+			while(actualType.length() > ptrStrLength && std::equal(sptr.rbegin(), sptr.rend(), actualType.rbegin()))
+				actualType = actualType.substr(0, actualType.length() - ptrStrLength), indirections++;
+		}
+
+		return actualType;
+	}
+
 	Type* Type::fromBuiltin(std::string builtin, FTContext* tc)
 	{
 		if(!tc) tc = getDefaultFTContext();
@@ -288,7 +310,7 @@ namespace fir
 
 
 		int indirections = 0;
-		builtin = Codegen::unwrapPointerType(builtin, &indirections);
+		builtin = unwrapPointerType(builtin, &indirections);
 
 		if(!Compiler::getDisableLowercaseBuiltinTypes())
 		{
@@ -327,119 +349,6 @@ namespace fir
 		real = real->getIndirectedType(indirections);
 		return real;
 	}
-
-
-	Type* Type::fromLlvmType(fir::Type* ltype, std::deque<bool> signage)
-	{
-		// Type* type = 0;
-
-		// // printf("FROM LLVM: %s\n", ((Codegen::CodegenInstance*) 0)->getReadableType(ltype).c_str());
-
-		// if(ltype->isPointerTy())
-		// 	return fromLlvmType(ltype->getPointerElementType(), signage)->getPointerTo();
-
-
-		// if(!type) type = new Type();
-
-		// type->isTypeSigned = false;
-		// type->isTypeVoid = false;
-		// type->bitWidth = 0;
-
-
-		// // 1a. int types
-		// if(ltype->isIntegerTy())
-		// {
-		// 	type->typeKind = FTypeKind::Integer;
-		// 	type->ptrBaseTypeKind = FTypeKind::Integer;
-
-		// 	type->bitWidth = ltype->getIntegerBitWidth();
-		// 	type->isTypeSigned = (signage.size() > 0 ? signage.front() : false);
-		// }
-
-		// // 1b. float types
-		// else if(ltype->isFloatingPointTy())
-		// {
-		// 	type->typeKind = FTypeKind::Floating;
-		// 	type->ptrBaseTypeKind = FTypeKind::Floating;
-
-		// 	if(ltype->isFloatTy()) type->bitWidth = 32;
-		// 	else if(ltype->isDoubleTy()) type->bitWidth = 64;
-		// 	else iceAssert(0 && "??? unsupported floating type");
-		// }
-
-		// // 2a. named structs
-		// else if(ltype->isStructTy() && !fir::cast<fir::StructType>(ltype)->isLiteral())
-		// {
-		// 	if(ltype->getStructName() == "String")
-		// 		error("POOOP");
-
-		// 	fir::StructType* lstype = fir::cast<fir::StructType>(ltype);
-
-		// 	type->typeKind = FTypeKind::NamedStruct;
-		// 	type->ptrBaseTypeKind = FTypeKind::NamedStruct;
-
-		// 	type->structName = lstype->getName();
-		// 	type->isTypeLiteralStruct = false;
-
-		// 	if(signage.size() != lstype->getNumElements())
-		// 	{
-		// 		printf("expected %d, got %zu\n", lstype->getNumElements(), signage.size());
-		// 		iceAssert(!"missing information (not enough signs)");
-		// 	}
-
-		// 	size_t i = 0;
-		// 	for(auto m : lstype->elements())
-		// 		type->structMembers.push_back(Type::fromLlvmType(m, { signage[i] })), i++;
-		// }
-
-		// // 2b. literal structs
-		// else if(ltype->isStructTy())
-		// {
-		// 	fir::StructType* lstype = fir::cast<fir::StructType>(ltype);
-
-		// 	type->typeKind = FTypeKind::LiteralStruct;
-		// 	type->ptrBaseTypeKind = FTypeKind::LiteralStruct;
-
-		// 	type->structName = "__LITERAL_STRUCT__";
-		// 	type->isTypeLiteralStruct = true;
-
-		// 	if(signage.size() != lstype->getNumElements())
-		// 	{
-		// 		printf("expected %d, got %zu\n", lstype->getNumElements(), signage.size());
-		// 		iceAssert(!"missing information (not enough signs)");
-		// 	}
-
-		// 	size_t i = 0;
-		// 	for(auto m : lstype->elements())
-		// 		type->structMembers.push_back(Type::fromLlvmType(m, { signage[i] })), i++;
-		// }
-
-		// // 3. array types
-		// else if(ltype->isArrayTy())
-		// {
-		// 	iceAssert(0);
-		// }
-
-		// // 4. function types
-		// else if(ltype->isFunctionTy())
-		// {
-		// 	iceAssert(0);
-		// }
-
-		// if(type->indirections > 0)
-		// 	type->typeKind = FTypeKind::Pointer;
-
-		// type = getDefaultFTContext()->normaliseType(type);	// todo: proper.
-		// // printf("RETURNING: %p\n", type);
-
-		// return type;
-
-		// return fir::Type::getVoidTy(fir::getGlobalContext());
-		return PrimitiveType::getVoid();
-	}
-
-
-
 
 	PrimitiveType* Type::toPrimitiveType()
 	{

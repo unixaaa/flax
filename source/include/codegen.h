@@ -22,20 +22,6 @@ enum class SymbolType
 
 namespace GenError
 {
-	void unknownSymbol(TCInstance* ti, Ast::Expr* e, std::string symname, SymbolType st) __attribute__((noreturn));
-	void duplicateSymbol(TCInstance* ti, Ast::Expr* e, std::string symname, SymbolType st) __attribute__((noreturn));
-	void noOpOverload(TCInstance* ti, Ast::Expr* e, std::string type, ArithmeticOp op) __attribute__((noreturn));
-	void invalidAssignment(TCInstance* ti, Ast::Expr* e, fir::Value* a, fir::Value* b) __attribute__((noreturn));
-	void invalidAssignment(TCInstance* ti, Ast::Expr* e, fir::Type* a, fir::Type* b) __attribute__((noreturn));
-	void nullValue(TCInstance* ti, Ast::Expr* e, int funcArgument = -1) __attribute__((noreturn));
-
-	void invalidInitialiser(TCInstance* ti, Ast::Expr* e, std::string name,
-		std::vector<fir::Value*> args) __attribute__((noreturn));
-
-	void expected(TCInstance* ti, Ast::Expr* e, std::string exp) __attribute__((noreturn));
-	void noSuchMember(TCInstance* ti, Ast::Expr* e, std::string type, std::string member);
-	void noFunctionTakingParams(TCInstance* ti, Ast::Expr* e, std::string type, std::string name, std::deque<Ast::Expr*> ps);
-
 	void printContext(std::string file, uint64_t line, uint64_t col, uint64_t len);
 	void printContext(Ast::Expr* e);
 }
@@ -62,7 +48,7 @@ struct CGInstance
 
 
 
-	static std::string unwrapPointerType(std::string type, int* indirections);
+
 };
 
 CGInstance* doCodegen(ModuleInfo* mi, TCInstance* ti);

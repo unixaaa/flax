@@ -427,7 +427,7 @@ namespace Ast
 			name(n) { }
 
 		virtual ~CompoundType() override { }
-		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual fir::Type* doTypecheck(TCInstance* ti) override = 0;
 
 		std::string name;
 		std::deque<std::string> typeParameters;
@@ -509,7 +509,7 @@ namespace Ast
 
 	struct RootAst : Expr
 	{
-		RootAst();
+		RootAst(Parser::Pin pos);
 		virtual ~RootAst() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
 

@@ -447,13 +447,14 @@ namespace Parser
 		// restore this, so we don't have to read the file again
 		ps.tokens = Compiler::getFileTokens(filename);
 
-		ps.rootNode = new RootAst();
-
 		ps.currentPos.file = new char[filename.length() + 1];
 		strcpy(ps.currentPos.file, filename.c_str());
 
 		ps.currentPos.line = 1;
 		ps.currentPos.col = 1;
+
+
+		ps.rootNode = new RootAst(ps.currentPos);
 
 
 		// todo: hacks
@@ -2701,6 +2702,39 @@ namespace Parser
 
 		return oo;
 	}
+
+
+	void parseAllCustomOperators(ParserState& pstate, std::string filename, std::string curpath)
+	{
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

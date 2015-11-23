@@ -328,9 +328,6 @@ namespace Parser
 	Ast::RootAst* Parse(ParserState& pstate, std::string filename);
 	void parseAllCustomOperators(ParserState& pstate, std::string filename, std::string curpath);
 
-
-
-
 	std::string getModuleName(std::string filename);
 	Token getNextToken(std::string& stream, Pin& pos);
 

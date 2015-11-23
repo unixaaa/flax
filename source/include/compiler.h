@@ -30,6 +30,13 @@ struct ModuleInfo
 {
 	ModuleInfo(Ast::RootAst* root) : rootAst(root) { }
 
+
+	// states
+	CGInstance* cgi = 0;
+	TCInstance* tci = 0;
+
+
+
 	// ast stuff
 	Ast::RootAst* rootAst = 0;
 
