@@ -1,5 +1,5 @@
 // CompilerDriver.cpp
-// Copyright (c) 2014 - 2015, zhiayang@gmail.com
+// Copyright (c) 2014 - 2016, zhiayang@gmail.com
 // Licensed under the Apache License Version 2.0.
 
 #include <iostream>
@@ -220,10 +220,7 @@ namespace Compiler
 		// NOTE: make sure resolveImport **DOES NOT** use codegeninstance, cuz it's 0.
 		ParserState fakeps;
 
-		fakeps.currentPos.file = new char[currentMod.length() + 1];
-		strcpy(fakeps.currentPos.file, currentMod.c_str());
-
-
+		fakeps.currentPos.file = currentMod;
 		fakeps.currentPos.line = 1;
 		fakeps.currentPos.col = 1;
 		fakeps.currentPos.len = 1;
@@ -244,7 +241,7 @@ namespace Compiler
 
 				std::string file = Compiler::getFullPathOfFile(Compiler::resolveImport(imp, Compiler::getFullPathOfFile(currentMod)));
 
-				g->addModuleDependency(currentMod, file, imp);
+				g->addDependency(currentMod, file, imp);
 
 				if(!visited[file])
 				{
@@ -599,7 +596,7 @@ namespace GenError
 }
 
 
-void __error_gen(uint64_t line, uint64_t col, uint64_t len, const char* file, const char* msg,
+void __error_gen(uint64_t line, uint64_t col, uint64_t len, std::string file, const char* msg,
 	const char* type, bool doExit, va_list ap)
 {
 	if(strcmp(type, "Warning") == 0 && Compiler::getFlag(Compiler::Flag::NoWarnings))
@@ -629,7 +626,7 @@ void __error_gen(uint64_t line, uint64_t col, uint64_t len, const char* file, co
 	if(line > 0 && col > 0)
 	{
 		std::vector<std::string> lines;
-		if(strcmp(file, "") != 0)
+		if(!file.empty())
 		{
 			GenError::printContext(file, line, col, len);
 		}
@@ -656,7 +653,7 @@ void error(Expr* relevantast, const char* msg, ...)
 	va_list ap;
 	va_start(ap, msg);
 
-	const char* file	= relevantast ? relevantast->posinfo.file : "";
+	std::string file	= relevantast ? relevantast->posinfo.file : "";
 	uint64_t line		= relevantast ? relevantast->posinfo.line : 0;
 	uint64_t col		= relevantast ? relevantast->posinfo.col : 0;
 	uint64_t len		= relevantast ? relevantast->posinfo.len : 0;
@@ -694,7 +691,7 @@ void warn(Expr* relevantast, const char* msg, ...)
 	va_list ap;
 	va_start(ap, msg);
 
-	const char* file	= relevantast ? relevantast->posinfo.file : "";
+	std::string file	= relevantast ? relevantast->posinfo.file : "";
 	uint64_t line		= relevantast ? relevantast->posinfo.line : 0;
 	uint64_t col		= relevantast ? relevantast->posinfo.col : 0;
 	uint64_t len		= relevantast ? relevantast->posinfo.len : 0;
@@ -718,7 +715,7 @@ void info(Expr* relevantast, const char* msg, ...)
 	va_list ap;
 	va_start(ap, msg);
 
-	const char* file	= relevantast ? relevantast->posinfo.file : "";
+	std::string file	= relevantast ? relevantast->posinfo.file : "";
 	uint64_t line		= relevantast ? relevantast->posinfo.line : 0;
 	uint64_t col		= relevantast ? relevantast->posinfo.col : 0;
 	uint64_t len		= relevantast ? relevantast->posinfo.len : 0;

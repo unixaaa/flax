@@ -5,7 +5,11 @@
 #include "ast.h"
 using namespace Ast;
 
-fir::Type* FuncCall::doTypecheck(TCInstance *ti)
+fir::Type* FuncCall::doTypecheck(TCInstance* ti)
 {
 	return 0;
+}
+
+void FuncCall::generateDependencies(TCInstance* ti)
+{
 }

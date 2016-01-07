@@ -5,7 +5,12 @@
 #include "ast.h"
 using namespace Ast;
 
-fir::Type* UnaryOp::doTypecheck(TCInstance *ti)
+fir::Type* UnaryOp::doTypecheck(TCInstance* ti)
 {
 	return 0;
+}
+
+
+void UnaryOp::generateDependencies(TCInstance* ti)
+{
 }

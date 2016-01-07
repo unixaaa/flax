@@ -1,5 +1,5 @@
 // FileReader.cpp
-// Copyright (c) 2014 - 2015, zhiayang@gmail.com
+// Copyright (c) 2014 - 2016, zhiayang@gmail.com
 // Licensed under the Apache License Version 2.0.
 
 #include <string>
@@ -58,8 +58,7 @@ namespace Compiler
 		Parser::Pin pos;
 		Parser::TokenList ts;
 
-		pos.file = new char[fullPath.length() + 1];
-		strcpy(pos.file, fullPath.c_str());
+		pos.file = fullPath;
 
 		while((curtok = getNextToken(fileContents, pos)).text.size() > 0)
 			ts.push_back(curtok);

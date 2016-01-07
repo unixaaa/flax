@@ -25,7 +25,7 @@ namespace fir
 	{
 		// methods
 		Namespace(Module* parent);
-		Namespace(Namespace* parent);
+		Namespace(std::string nm, Namespace* parent);
 
 
 		std::deque<Function*> getFunctionsWithName(std::string name);
@@ -42,6 +42,8 @@ namespace fir
 		// fully qualified names, a list of namepaces
 		StructType* getFQNamedType(std::deque<std::string> qualifiedName);
 
+
+		Namespace* getOrAddNamespace(std::string name);
 
 
 

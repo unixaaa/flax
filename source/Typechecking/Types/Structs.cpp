@@ -5,7 +5,12 @@
 #include "ast.h"
 using namespace Ast;
 
-fir::Type* StructDef::doTypecheck(TCInstance *ti)
+fir::Type* StructDef::doTypecheck(TCInstance* ti)
 {
 	return 0;
+}
+
+
+void StructDef::generateDependencies(TCInstance* ti)
+{
 }

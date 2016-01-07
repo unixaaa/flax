@@ -1,5 +1,5 @@
 // Parser.cpp
-// Copyright (c) 2014 - 2015, zhiayang@gmail.com
+// Copyright (c) 2014 - 2016, zhiayang@gmail.com
 // Licensed under the Apache License Version 2.0.
 
 #include <map>
@@ -447,9 +447,7 @@ namespace Parser
 		// restore this, so we don't have to read the file again
 		ps.tokens = Compiler::getFileTokens(filename);
 
-		ps.currentPos.file = new char[filename.length() + 1];
-		strcpy(ps.currentPos.file, filename.c_str());
-
+		ps.currentPos.file = filename;
 		ps.currentPos.line = 1;
 		ps.currentPos.col = 1;
 
@@ -2766,8 +2764,8 @@ namespace Parser
 		va_list ap;
 		va_start(ap, msg);
 
-		__error_gen(staticState->curtok.pin.line, staticState->curtok.pin.col, staticState->curtok.pin.len, staticState->curtok.pin.file,
-			msg, "Error", true, ap);
+		__error_gen(staticState->curtok.pin.line, staticState->curtok.pin.col, staticState->curtok.pin.len,
+			staticState->curtok.pin.file.c_str(), msg, "Error", true, ap);
 
 		va_end(ap);
 		abort();
@@ -2780,8 +2778,8 @@ namespace Parser
 		va_list ap;
 		va_start(ap, msg);
 
-		__error_gen(staticState->curtok.pin.line, staticState->curtok.pin.col, staticState->curtok.pin.len, staticState->curtok.pin.file,
-			msg, "Warning", false, ap);
+		__error_gen(staticState->curtok.pin.line, staticState->curtok.pin.col, staticState->curtok.pin.len,
+			staticState->curtok.pin.file.c_str(), msg, "Warning", false, ap);
 
 		va_end(ap);
 	}
@@ -2793,7 +2791,8 @@ namespace Parser
 		va_list ap;
 		va_start(ap, msg);
 
-		__error_gen(ps.curtok.pin.line, ps.curtok.pin.col, ps.curtok.pin.len, ps.curtok.pin.file, msg, "Error", true, ap);
+		__error_gen(ps.curtok.pin.line, ps.curtok.pin.col, ps.curtok.pin.len, ps.curtok.pin.file.c_str(),
+			msg, "Error", true, ap);
 
 		va_end(ap);
 		abort();
@@ -2805,7 +2804,8 @@ namespace Parser
 		va_list ap;
 		va_start(ap, msg);
 
-		__error_gen(ps.curtok.pin.line, ps.curtok.pin.col, ps.curtok.pin.len, ps.curtok.pin.file, msg, "Warning", false, ap);
+		__error_gen(ps.curtok.pin.line, ps.curtok.pin.col, ps.curtok.pin.len, ps.curtok.pin.file.c_str(),
+			msg, "Warning", false, ap);
 
 		va_end(ap);
 	}
@@ -2820,7 +2820,7 @@ namespace Parser
 		va_list ap;
 		va_start(ap, msg);
 
-		__error_gen(tok.pin.line, tok.pin.col, tok.pin.len, tok.pin.file, msg, "Error", true, ap);
+		__error_gen(tok.pin.line, tok.pin.col, tok.pin.len, tok.pin.file.c_str(), msg, "Error", true, ap);
 
 		va_end(ap);
 		abort();
@@ -2832,7 +2832,7 @@ namespace Parser
 		va_list ap;
 		va_start(ap, msg);
 
-		__error_gen(tok.pin.line, tok.pin.col, tok.pin.len, tok.pin.file, msg, "Warning", false, ap);
+		__error_gen(tok.pin.line, tok.pin.col, tok.pin.len, tok.pin.file.c_str(), msg, "Warning", false, ap);
 
 		va_end(ap);
 	}
@@ -2846,7 +2846,7 @@ namespace Parser
 		va_list ap;
 		va_start(ap, msg);
 
-		__error_gen(pin.line, pin.col, pin.len, pin.file, msg, "Error", true, ap);
+		__error_gen(pin.line, pin.col, pin.len, pin.file.c_str(), msg, "Error", true, ap);
 
 		va_end(ap);
 		abort();
@@ -2858,7 +2858,7 @@ namespace Parser
 		va_list ap;
 		va_start(ap, msg);
 
-		__error_gen(pin.line, pin.col, pin.len, pin.file, msg, "Warning", false, ap);
+		__error_gen(pin.line, pin.col, pin.len, pin.file.c_str(), msg, "Warning", false, ap);
 
 		va_end(ap);
 	}
@@ -2873,7 +2873,7 @@ namespace Parser
 		va_list ap;
 		va_start(ap, msg);
 
-		__error_gen(tok.pin.line, tok.pin.col, tok.pin.len, tok.pin.file, msg, "Error", true, ap);
+		__error_gen(tok.pin.line, tok.pin.col, tok.pin.len, tok.pin.file.c_str(), msg, "Error", true, ap);
 
 		va_end(ap);
 		abort();
@@ -2885,7 +2885,7 @@ namespace Parser
 		va_list ap;
 		va_start(ap, msg);
 
-		__error_gen(tok.pin.line, tok.pin.col, tok.pin.len, tok.pin.file, msg, "Warning", false, ap);
+		__error_gen(tok.pin.line, tok.pin.col, tok.pin.len, tok.pin.file.c_str(), msg, "Warning", false, ap);
 
 		va_end(ap);
 	}

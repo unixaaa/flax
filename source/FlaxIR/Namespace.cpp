@@ -17,10 +17,27 @@ namespace fir
 		this->parent = 0;
 	}
 
-	Namespace::Namespace(Namespace* np)
+	Namespace::Namespace(std::string nm, Namespace* np)
 	{
+		this->name = nm;
+
 		this->mparent = np->mparent;
 		this->parent = np;
+	}
+
+	Namespace* Namespace::getOrAddNamespace(std::string name)
+	{
+		for(auto ns : this->subNamespaces)
+		{
+			if(ns->name == name)
+				return ns;
+		}
+
+		// got here, need new one
+		Namespace* nn = new Namespace(name, this);
+		this->subNamespaces.push_back(nn);
+
+		return nn;
 	}
 
 	std::deque<Function*> Namespace::getFunctionsWithNameAndType(std::string name, FunctionType* ft)

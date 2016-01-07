@@ -6,7 +6,12 @@
 using namespace Ast;
 
 
-fir::Type* TypeAliasDef::doTypecheck(TCInstance *ti)
+fir::Type* TypeAliasDef::doTypecheck(TCInstance* ti)
 {
 	return 0;
+}
+
+
+void TypeAliasDef::generateDependencies(TCInstance* ti)
+{
 }

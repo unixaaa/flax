@@ -38,6 +38,7 @@ namespace fir
 		llvm::Module* translateToLlvm();
 
 		std::string print();
+		Namespace* getTopLevelNamespace();
 
 		private:
 		Namespace* topLevelNamespace = 0;

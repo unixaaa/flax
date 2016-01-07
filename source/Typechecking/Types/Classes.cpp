@@ -6,13 +6,29 @@
 using namespace Ast;
 
 
-fir::Type* ClassDef::doTypecheck(TCInstance *ti)
+fir::Type* ClassDef::doTypecheck(TCInstance* ti)
 {
 	return 0;
 }
 
 
-fir::Type* ClassPropertyDef::doTypecheck(TCInstance *ti)
+fir::Type* ClassPropertyDef::doTypecheck(TCInstance* ti)
 {
 	return 0;
+}
+
+
+
+
+
+
+
+
+
+void ClassDef::generateDependencies(TCInstance* ti)
+{
+}
+
+void ClassPropertyDef::generateDependencies(TCInstance* ti)
+{
 }

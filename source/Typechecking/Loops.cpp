@@ -6,7 +6,11 @@
 using namespace Ast;
 
 
-fir::Type* WhileLoop::doTypecheck(TCInstance *ti)
+fir::Type* WhileLoop::doTypecheck(TCInstance* ti)
 {
 	return 0;
+}
+
+void WhileLoop::generateDependencies(TCInstance* ti)
+{
 }

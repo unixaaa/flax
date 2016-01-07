@@ -5,7 +5,11 @@
 #include "ast.h"
 using namespace Ast;
 
-fir::Type* SubscriptOp::doTypecheck(TCInstance *ti)
+fir::Type* SubscriptOp::doTypecheck(TCInstance* ti)
 {
 	return 0;
+}
+
+void SubscriptOp::generateDependencies(TCInstance* ti)
+{
 }

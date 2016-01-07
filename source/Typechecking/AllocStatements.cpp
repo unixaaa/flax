@@ -7,14 +7,22 @@ using namespace Ast;
 
 
 
-fir::Type* AllocStmt::doTypecheck(TCInstance *ti)
+fir::Type* AllocStmt::doTypecheck(TCInstance* ti)
 {
 	return 0;
 }
 
-fir::Type* DeallocStmt::doTypecheck(TCInstance *ti)
+fir::Type* DeallocStmt::doTypecheck(TCInstance* ti)
 {
 	return 0;
 }
 
 
+
+void AllocStmt::generateDependencies(TCInstance* ti)
+{
+}
+
+void DeallocStmt::generateDependencies(TCInstance* ti)
+{
+}

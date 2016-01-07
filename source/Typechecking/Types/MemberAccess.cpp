@@ -6,7 +6,11 @@
 using namespace Ast;
 
 
-fir::Type* DotOp::doTypecheck(TCInstance *ti)
+fir::Type* DotOp::doTypecheck(TCInstance* ti)
 {
 	return 0;
+}
+
+void DotOp::generateDependencies(TCInstance* ti)
+{
 }

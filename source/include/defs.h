@@ -1,5 +1,5 @@
 // defs.h
-// Copyright (c) 2014 - 2015, zhiayang@gmail.com
+// Copyright (c) 2014 - 2016, zhiayang@gmail.com
 // Licensed under the Apache License Version 2.0.
 
 #pragma once
@@ -21,6 +21,7 @@ namespace fir
 	struct Type;
 	struct Function;
 	struct IRBlock;
+	struct Namespace;
 }
 
 struct CGInstance;
@@ -54,9 +55,9 @@ namespace Parser
 	struct Pin
 	{
 		Pin() { }
-		Pin(char* f, uint64_t l, uint64_t c, uint64_t ln) : file(f), line(l), col(c), len(ln) { }
+		Pin(std::string f, uint64_t l, uint64_t c, uint64_t ln) : file(f), line(l), col(c), len(ln) { }
 
-		char* file = 0;
+		std::string file;
 		uint64_t line = 1;
 		uint64_t col = 1;
 		uint64_t len = 1;

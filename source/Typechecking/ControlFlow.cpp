@@ -5,30 +5,46 @@
 #include "ast.h"
 using namespace Ast;
 
-fir::Type* DeferredStmt::doTypecheck(TCInstance *ti)
+fir::Type* DeferredStmt::doTypecheck(TCInstance* ti)
 {
 	return 0;
 }
 
-fir::Type* BracedBlock::doTypecheck(TCInstance *ti)
+fir::Type* BreakStmt::doTypecheck(TCInstance* ti)
 {
 	return 0;
 }
 
-fir::Type* BreakStmt::doTypecheck(TCInstance *ti)
+fir::Type* ContinueStmt::doTypecheck(TCInstance* ti)
 {
 	return 0;
 }
 
-fir::Type* ContinueStmt::doTypecheck(TCInstance *ti)
-{
-	return 0;
-}
-
-fir::Type* ReturnStmt::doTypecheck(TCInstance *ti)
+fir::Type* ReturnStmt::doTypecheck(TCInstance* ti)
 {
 	return 0;
 }
 
 
 
+
+
+
+
+
+
+void DeferredStmt::generateDependencies(TCInstance* ti)
+{
+}
+
+void BreakStmt::generateDependencies(TCInstance* ti)
+{
+}
+
+void ContinueStmt::generateDependencies(TCInstance* ti)
+{
+}
+
+void ReturnStmt::generateDependencies(TCInstance* ti)
+{
+}

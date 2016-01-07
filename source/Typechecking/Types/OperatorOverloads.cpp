@@ -6,7 +6,12 @@
 using namespace Ast;
 
 
-fir::Type* OpOverloadDef::doTypecheck(TCInstance *ti)
+fir::Type* OpOverloadDef::doTypecheck(TCInstance* ti)
 {
 	return 0;
+}
+
+
+void OpOverloadDef::generateDependencies(TCInstance* ti)
+{
 }

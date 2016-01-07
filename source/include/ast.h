@@ -18,6 +18,7 @@ namespace Ast
 		virtual ~Expr() { }
 
 		virtual fir::Type* doTypecheck(TCInstance* ti) = 0;
+		virtual void generateDependencies(TCInstance* ti) = 0;
 
 		Parser::Pin posinfo;
 	};
@@ -26,7 +27,8 @@ namespace Ast
 	{
 		Dummy(Parser::Pin pos) : Expr(pos) { }
 		virtual ~Dummy() { }
-		virtual fir::Type* doTypecheck(TCInstance* ti) override { return 0; };
+		virtual fir::Type* doTypecheck(TCInstance* ti) override { return 0; }
+		virtual void generateDependencies(TCInstance* ti) override { }
 
 		std::string type;
 	};
@@ -43,6 +45,7 @@ namespace Ast
 
 		virtual ~StringLiteral() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		std::string text;
 
@@ -56,6 +59,7 @@ namespace Ast
 
 		virtual ~NumberLiteral() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		bool isFloating = false;
 
@@ -70,6 +74,7 @@ namespace Ast
 
 		virtual ~BooleanLiteral() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		bool value;
 	};
@@ -81,6 +86,7 @@ namespace Ast
 
 		virtual ~ArrayLiteral() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		std::deque<Expr*> values;
 	};
@@ -92,6 +98,7 @@ namespace Ast
 
 		virtual ~TupleLiteral() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		std::deque<Expr*> values;
 	};
@@ -106,6 +113,7 @@ namespace Ast
 
 		virtual ~VarRef() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		std::string name;
 	};
@@ -117,6 +125,7 @@ namespace Ast
 
 		virtual ~UnaryOp() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		ArithmeticOp op;
 		Expr* expression = 0;
@@ -129,6 +138,7 @@ namespace Ast
 
 		virtual ~BinaryOp() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		ArithmeticOp op;
 		Expr* leftExpr = 0;
@@ -142,6 +152,7 @@ namespace Ast
 
 		virtual ~SubscriptOp() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		Expr* expr = 0;
 		std::deque<Expr*> indices;
@@ -154,6 +165,7 @@ namespace Ast
 
 		virtual ~DotOp() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		Expr* leftExpr = 0;
 		Expr* rightExpr = 0;
@@ -166,6 +178,7 @@ namespace Ast
 
 		virtual ~FuncCall() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		std::string name;
 		std::deque<Expr*> arguments;
@@ -178,6 +191,7 @@ namespace Ast
 
 		virtual ~Typeof() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		Expr* expr = 0;
 	};
@@ -200,6 +214,7 @@ namespace Ast
 
 		virtual ~ImportStmt() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		std::string moduleIdentifier;
 	};
@@ -214,6 +229,7 @@ namespace Ast
 
 		virtual ~IfStmt() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 
 		std::deque<CondBlockPair> cases;
@@ -227,6 +243,7 @@ namespace Ast
 
 		virtual ~WhileLoop() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		Expr* loopCondition = 0;
 		BracedBlock* loopBody = 0;
@@ -239,6 +256,7 @@ namespace Ast
 		BreakStmt(Parser::Pin pos) : Expr(pos) { }
 		virtual ~BreakStmt() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 	};
 
 	struct ContinueStmt : Expr
@@ -246,6 +264,7 @@ namespace Ast
 		ContinueStmt(Parser::Pin pos) : Expr(pos) { }
 		virtual ~ContinueStmt() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 	};
 
 	struct ReturnStmt : Expr
@@ -255,6 +274,7 @@ namespace Ast
 
 		virtual ~ReturnStmt() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		Expr* returnValue = 0;
 	};
@@ -264,6 +284,7 @@ namespace Ast
 		AllocStmt(Parser::Pin pos) : Expr(pos) { }
 		virtual ~AllocStmt() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		std::string type;
 		std::deque<Expr*> counts;
@@ -277,6 +298,7 @@ namespace Ast
 
 		virtual ~DeallocStmt() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		Expr* expr = 0;
 	};
@@ -288,6 +310,7 @@ namespace Ast
 
 		virtual ~DeferredStmt() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		Expr* deferred = 0;
 	};
@@ -297,6 +320,7 @@ namespace Ast
 		BracedBlock(Parser::Pin pos) : Expr(pos) { }
 		virtual ~BracedBlock() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		std::deque<Expr*> statements;
 		std::deque<DeferredStmt*> deferredStatements;
@@ -316,6 +340,7 @@ namespace Ast
 
 		virtual ~VarDecl() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		std::string type;
 		std::string name;
@@ -335,6 +360,7 @@ namespace Ast
 
 		virtual ~FuncDecl() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		std::string name;
 		std::string returnType;
@@ -364,6 +390,7 @@ namespace Ast
 
 		virtual ~FunctionDef() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		FuncDecl* funcDecl = 0;
 		BracedBlock* funcBody = 0;
@@ -376,6 +403,7 @@ namespace Ast
 
 		virtual ~OpOverloadDef() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		ArithmeticOp op;
 		FunctionDef* function = 0;
@@ -392,6 +420,7 @@ namespace Ast
 		TypeAliasDef(Parser::Pin pos) : Expr(pos) { }
 		virtual ~TypeAliasDef() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		std::string actualType;
 		std::string newTypeName;
@@ -406,6 +435,7 @@ namespace Ast
 
 		virtual ~NamespaceDef() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		std::string name;
 		BracedBlock* body = 0;
@@ -428,6 +458,7 @@ namespace Ast
 
 		virtual ~CompoundType() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override = 0;
+		virtual void generateDependencies(TCInstance* ti) override = 0;
 
 		std::string name;
 		std::deque<std::string> typeParameters;
@@ -443,6 +474,7 @@ namespace Ast
 		StructDef(Parser::Pin pos, std::string n) : CompoundType(pos, n) { }
 		virtual ~StructDef() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		bool isPackedStruct = false;
 	};
@@ -454,6 +486,7 @@ namespace Ast
 		EnumerationDef(Parser::Pin pos, std::string n) : CompoundType(pos, n) { }
 		virtual ~EnumerationDef() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		bool isStrongEnumeration = false;
 
@@ -466,6 +499,7 @@ namespace Ast
 		ClassDef(Parser::Pin pos, std::string n) : CompoundType(pos, n) { }
 		virtual ~ClassDef() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		std::deque<FunctionDef*> functions;
 		std::deque<ClassPropertyDef*> properties;
@@ -480,6 +514,7 @@ namespace Ast
 		ExtensionDef(Parser::Pin pos, std::string n) : ClassDef(pos, n) { }
 		virtual ~ExtensionDef() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 	};
 
 	struct ClassPropertyDef : VarDecl
@@ -487,6 +522,7 @@ namespace Ast
 		ClassPropertyDef(Parser::Pin pos, std::string n) : VarDecl(pos, n, true) { }
 		virtual ~ClassPropertyDef() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 		BracedBlock* getterDef = 0;
 		BracedBlock* setterDef = 0;
@@ -512,6 +548,7 @@ namespace Ast
 		RootAst(Parser::Pin pos);
 		virtual ~RootAst() override { }
 		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+		virtual void generateDependencies(TCInstance* ti) override;
 
 
 		std::deque<Expr*> topLevelExpressions;

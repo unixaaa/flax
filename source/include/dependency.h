@@ -1,18 +1,20 @@
 // dependency.h
-// Copyright (c) 2014 - 2015, zhiayang@gmail.com
+// Copyright (c) 2014 - 2016, zhiayang@gmail.com
 // Licensed under the Apache License Version 2.0.
+
+#pragma once
 
 #include <map>
 #include <deque>
 #include <stack>
 #include <string>
 
-#pragma once
 
 namespace Ast
 {
 	struct Expr;
 	struct Root;
+	struct ImportStmt;
 }
 
 namespace Codegen
@@ -29,6 +31,8 @@ namespace Codegen
 	{
 		Ast::Expr* expr = 0;
 		std::string name;
+
+		std::deque<std::string> alts;
 
 		// mainly to aid error reporting
 		std::deque<std::pair<DepNode*, Ast::Expr*>> users;
@@ -50,14 +54,18 @@ namespace Codegen
 	{
 		std::deque<DepNode*> nodes;
 		std::map<DepNode*, std::deque<Dep*>> edgesFrom;
+		std::map<DepNode*, std::deque<Dep*>> edgesTo;
 
 		std::stack<DepNode*> stack;
 
 
-		void addModuleDependency(std::string from, std::string to, Ast::Expr* imp);
+		void addDependency(std::string from, std::string to, Ast::ImportStmt* imp);
+		void addTypeDependency(std::string from, std::deque<std::string> possibleNames, Ast::Expr* user);
+
 		std::deque<std::deque<DepNode*>> findCyclicDependencies();
 
 		std::deque<DepNode*> findDependenciesOf(Ast::Expr* expr);
+		std::deque<DepNode*> findDependentsOf(std::string str);
 	};
 }
 

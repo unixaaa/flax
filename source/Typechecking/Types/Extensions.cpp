@@ -6,7 +6,11 @@
 using namespace Ast;
 
 
-fir::Type* ExtensionDef::doTypecheck(TCInstance *ti)
+fir::Type* ExtensionDef::doTypecheck(TCInstance* ti)
 {
 	return 0;
+}
+
+void ExtensionDef::generateDependencies(TCInstance* ti)
+{
 }

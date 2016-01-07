@@ -6,13 +6,24 @@
 using namespace Ast;
 
 
-fir::Type* VarRef::doTypecheck(TCInstance *ti)
+fir::Type* VarRef::doTypecheck(TCInstance* ti)
 {
 	return 0;
 }
 
 
-fir::Type* VarDecl::doTypecheck(TCInstance *ti)
+fir::Type* VarDecl::doTypecheck(TCInstance* ti)
 {
 	return 0;
+}
+
+
+
+
+void VarRef::generateDependencies(TCInstance* ti)
+{
+}
+
+void VarDecl::generateDependencies(TCInstance* ti)
+{
 }

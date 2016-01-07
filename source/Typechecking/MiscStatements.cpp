@@ -7,12 +7,23 @@
 using namespace Ast;
 
 
-fir::Type* Typeof::doTypecheck(TCInstance *ti)
+fir::Type* Typeof::doTypecheck(TCInstance* ti)
 {
 	return 0;
 }
 
-fir::Type* ImportStmt::doTypecheck(TCInstance *ti)
+fir::Type* ImportStmt::doTypecheck(TCInstance* ti)
 {
 	return 0;
+}
+
+
+
+
+void Typeof::generateDependencies(TCInstance* ti)
+{
+}
+
+void ImportStmt::generateDependencies(TCInstance* ti)
+{
 }

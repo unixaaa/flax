@@ -9,6 +9,12 @@ namespace fir
 	Module::Module(std::string nm)
 	{
 		this->moduleName = nm;
+		this->topLevelNamespace = new fir::Namespace(this);
+	}
+
+	Namespace* Module::getTopLevelNamespace()
+	{
+		return this->topLevelNamespace;
 	}
 
 	// GlobalVariable* Module::createGlobalVariable(std::string name, Type* type, ConstantValue* initVal, bool isImmut, LinkageType linkage)

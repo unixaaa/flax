@@ -6,7 +6,13 @@
 using namespace Ast;
 
 
-fir::Type* BinaryOp::doTypecheck(TCInstance *ti)
+fir::Type* BinaryOp::doTypecheck(TCInstance* ti)
 {
 	return 0;
+}
+
+void BinaryOp::generateDependencies(TCInstance* ti)
+{
+	this->leftExpr->generateDependencies(ti);
+	this->rightExpr->generateDependencies(ti);
 }

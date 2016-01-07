@@ -8,13 +8,15 @@
 #include <stddef.h>
 #include <stdarg.h>
 
+#include <string>
+
 namespace Ast
 {
 	struct Expr;
 }
 
 
-void __error_gen(uint64_t line, uint64_t col, uint64_t len, const char* file, const char* msg, const char* type,
+void __error_gen(uint64_t line, uint64_t col, uint64_t len, std::string f, const char* msg, const char* type,
 	bool doExit, va_list ap);
 
 void error(const char* msg, ...) __attribute__((noreturn, format(printf, 1, 2)));
