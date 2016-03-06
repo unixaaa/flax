@@ -20,10 +20,3 @@ fir::Type* VarDecl::doTypecheck(TCInstance* ti)
 
 
 
-void VarRef::generateDependencies(TCInstance* ti)
-{
-}
-
-void VarDecl::generateDependencies(TCInstance* ti)
-{
-}

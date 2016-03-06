@@ -12,6 +12,3 @@ fir::Type* TypeAliasDef::doTypecheck(TCInstance* ti)
 }
 
 
-void TypeAliasDef::generateDependencies(TCInstance* ti)
-{
-}

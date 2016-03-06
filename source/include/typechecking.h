@@ -28,10 +28,48 @@ struct TCInstance
 
 	fir::Namespace* pushNamespace(std::string name);
 	void popNamespace();
+
+
+	std::deque<std::deque<std::pair<std::string, fir::Type*>>> identifierStack;
+	std::pair<std::string, fir::Type*> getIdentifier(std::string name);
+
+	void addIdentifier(std::string name, fir::Type* type);
+
+	void pushIdentifierStack();
+	void popIdentifierStack();
 };
 
 std::deque<std::string> deconstructTupleString(std::string tup);
 TCInstance* doTypechecking(ModuleInfo* mi);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

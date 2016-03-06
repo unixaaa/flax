@@ -11,6 +11,3 @@ fir::Type* IfStmt::doTypecheck(TCInstance* ti)
 	return 0;
 }
 
-void IfStmt::generateDependencies(TCInstance* ti)
-{
-}

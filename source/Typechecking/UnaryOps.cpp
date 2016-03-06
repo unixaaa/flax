@@ -11,6 +11,3 @@ fir::Type* UnaryOp::doTypecheck(TCInstance* ti)
 }
 
 
-void UnaryOp::generateDependencies(TCInstance* ti)
-{
-}

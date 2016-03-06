@@ -10,6 +10,3 @@ fir::Type* SubscriptOp::doTypecheck(TCInstance* ti)
 	return 0;
 }
 
-void SubscriptOp::generateDependencies(TCInstance* ti)
-{
-}

@@ -8,6 +8,8 @@ using namespace Ast;
 
 fir::Type* ClassDef::doTypecheck(TCInstance* ti)
 {
+	if(didGenerateType) return this->generatedType;
+
 	return 0;
 }
 
@@ -23,12 +25,3 @@ fir::Type* ClassPropertyDef::doTypecheck(TCInstance* ti)
 
 
 
-
-
-void ClassDef::generateDependencies(TCInstance* ti)
-{
-}
-
-void ClassPropertyDef::generateDependencies(TCInstance* ti)
-{
-}

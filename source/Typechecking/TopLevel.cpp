@@ -11,76 +11,6 @@
 using namespace Ast;
 
 
-RootAst::RootAst(Parser::Pin pos) : Expr(pos)
-{
-}
-
-ModuleInfo::ModuleInfo(RootAst* rast)
-{
-	this->rootAst = rast;
-
-	std::string fname = rast->posinfo.file;
-	std::string modname;
-	for(size_t i = 0; i < fname.size(); i++)
-	{
-		if(fname[i] == '/' || fname[i] == '\\')
-			modname += "::";
-
-		else if(fname[i] == '.' && fname.size() > i + 1 && fname.substr(i + 1).find("flx") == 0)
-			break;
-
-		else
-			modname += fname[i];
-	}
-
-	this->fmodule = new fir::Module(modname);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void RootAst::generateDependencies(TCInstance* ti)
-{
-	for(auto e : this->topLevelExpressions)
-		e->generateDependencies(ti);
-}
-
-void BracedBlock::generateDependencies(TCInstance* ti)
-{
-	for(auto e : this->statements)
-		e->generateDependencies(ti);
-
-	for(auto e : this->deferredStatements)
-		e->generateDependencies(ti);
-}
-
-void NamespaceDef::generateDependencies(TCInstance* ti)
-{
-	ti->pushNamespace(this->name);
-	this->body->generateDependencies(ti);
-	ti->popNamespace();
-}
-
-
-
-
-
 
 fir::Type* RootAst::doTypecheck(TCInstance* ti)
 {
@@ -105,9 +35,29 @@ fir::Type* BracedBlock::doTypecheck(TCInstance* ti)
 }
 
 
+
+
+
+static void findTypes(TCInstance* ti, BracedBlock* bb)
+{
+	for(auto e : bb->statements)
+	{
+		if(TypeAliasDef* tad = dynamic_cast<TypeAliasDef*>(e))
+			tad->doTypecheck(ti);
+
+		else if(CompoundType* ct = dynamic_cast<CompoundType*>(e))
+			ct->doTypecheck(ti);
+
+		else if(NamespaceDef* nd = dynamic_cast<NamespaceDef*>(e))
+			findTypes(ti, nd->body);
+	}
+}
+
 fir::Type* NamespaceDef::doTypecheck(TCInstance* ti)
 {
 	ti->pushNamespace(this->name);
+	findTypes(ti, this->body);
+
 	this->body->doTypecheck(ti);
 	ti->popNamespace();
 
@@ -116,6 +66,50 @@ fir::Type* NamespaceDef::doTypecheck(TCInstance* ti)
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+RootAst::RootAst(Parser::Pin pos) : Expr(pos)
+{
+}
+
+ModuleInfo::ModuleInfo(RootAst* rast)
+{
+	this->rootAst = rast;
+
+	std::string fname = rast->posinfo.file;
+	std::string modname;
+	for(size_t i = 0; i < fname.size(); i++)
+	{
+		if(fname[i] == '/' || fname[i] == '\\')
+			modname += "::";
+
+		else if(fname[i] == '.' && fname.size() > i + 1 && fname.substr(i + 1).find("flx") == 0)
+			break;
+
+		else
+			modname += fname[i];
+	}
+
+	this->fmodule = new fir::Module(modname);
+}
 
 
 

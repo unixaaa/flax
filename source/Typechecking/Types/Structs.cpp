@@ -11,6 +11,3 @@ fir::Type* StructDef::doTypecheck(TCInstance* ti)
 }
 
 
-void StructDef::generateDependencies(TCInstance* ti)
-{
-}

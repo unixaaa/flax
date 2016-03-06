@@ -11,6 +11,3 @@ fir::Type* DotOp::doTypecheck(TCInstance* ti)
 	return 0;
 }
 
-void DotOp::generateDependencies(TCInstance* ti)
-{
-}

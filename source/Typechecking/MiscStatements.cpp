@@ -19,11 +19,3 @@ fir::Type* ImportStmt::doTypecheck(TCInstance* ti)
 
 
 
-
-void Typeof::generateDependencies(TCInstance* ti)
-{
-}
-
-void ImportStmt::generateDependencies(TCInstance* ti)
-{
-}

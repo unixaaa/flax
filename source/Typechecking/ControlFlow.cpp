@@ -22,7 +22,7 @@ fir::Type* ContinueStmt::doTypecheck(TCInstance* ti)
 
 fir::Type* ReturnStmt::doTypecheck(TCInstance* ti)
 {
-	return 0;
+	return this->returnValue->doTypecheck(ti);
 }
 
 
@@ -30,21 +30,3 @@ fir::Type* ReturnStmt::doTypecheck(TCInstance* ti)
 
 
 
-
-
-
-void DeferredStmt::generateDependencies(TCInstance* ti)
-{
-}
-
-void BreakStmt::generateDependencies(TCInstance* ti)
-{
-}
-
-void ContinueStmt::generateDependencies(TCInstance* ti)
-{
-}
-
-void ReturnStmt::generateDependencies(TCInstance* ti)
-{
-}

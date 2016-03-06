@@ -3,13 +3,15 @@
 // Licensed under the Apache License Version 2.0.
 
 #include "ast.h"
+#include "typechecking.h"
+
 using namespace Ast;
+
+
+
+
 
 fir::Type* FuncCall::doTypecheck(TCInstance* ti)
 {
 	return 0;
-}
-
-void FuncCall::generateDependencies(TCInstance* ti)
-{
 }

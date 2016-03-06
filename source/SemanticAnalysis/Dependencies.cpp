@@ -70,7 +70,7 @@ namespace Codegen
 
 	void DependencyGraph::addTypeDependency(std::string from, std::deque<std::string> possibleNames, Ast::Expr* user)
 	{
-		auto p = getNodes(this, from, "", user);
+		auto p = getNodes(this, from, "_", user);
 
 		Dep* d = new Dep();
 		d->type = DepType::Type;

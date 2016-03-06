@@ -12,7 +12,11 @@ fir::Type* StringLiteral::doTypecheck(TCInstance* ti)
 
 fir::Type* NumberLiteral::doTypecheck(TCInstance* ti)
 {
-	return 0;
+	if(this->isFloating)
+		return fir::PrimitiveType::getFloat64();
+
+	else
+		return fir::PrimitiveType::getInt64();
 }
 
 fir::Type* BooleanLiteral::doTypecheck(TCInstance* ti)
@@ -34,25 +38,3 @@ fir::Type* TupleLiteral::doTypecheck(TCInstance* ti)
 
 
 
-
-
-void StringLiteral::generateDependencies(TCInstance* ti)
-{
-}
-
-
-void NumberLiteral::generateDependencies(TCInstance* ti)
-{
-}
-
-void BooleanLiteral::generateDependencies(TCInstance* ti)
-{
-}
-
-void ArrayLiteral::generateDependencies(TCInstance* ti)
-{
-}
-
-void TupleLiteral::generateDependencies(TCInstance* ti)
-{
-}

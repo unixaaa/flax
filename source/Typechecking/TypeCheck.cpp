@@ -15,7 +15,6 @@ TCInstance* doTypechecking(ModuleInfo* mi)
 	mi->tci = ti;
 
 	iceAssert(mi->rootAst != 0);
-	mi->rootAst->generateDependencies(ti);
 	mi->rootAst->doTypecheck(ti);
 
 	return ti;
@@ -81,12 +80,16 @@ std::deque<std::string> TCInstance::getCurrentNamespaceStack()
 fir::Namespace* TCInstance::pushNamespace(std::string name)
 {
 	this->currentNamespace = this->currentNamespace->getOrAddNamespace(name);
+	this->pushIdentifierStack();
+
 	return this->currentNamespace;
 }
 
 void TCInstance::popNamespace()
 {
 	iceAssert(this->currentNamespace->parent && "cannot pop empty namespace stack");
+
+	this->popIdentifierStack();
 	this->currentNamespace = this->currentNamespace->parent;
 }
 
@@ -95,7 +98,36 @@ void TCInstance::popNamespace()
 
 
 
+std::pair<std::string, fir::Type*> TCInstance::getIdentifier(std::string name)
+{
+	// go backwards
+	for(size_t i = this->identifierStack.size() - 1; i > 0; i--)
+	{
+		for(auto p : this->identifierStack[i])
+		{
+			if(p.first == name)
+				return p;
+		}
+	}
 
+	return { "", 0 };
+}
+
+void TCInstance::addIdentifier(std::string name, fir::Type* type)
+{
+	this->identifierStack.back().push_back({ name, type });
+}
+
+void TCInstance::pushIdentifierStack()
+{
+	this->identifierStack.push_back({ });
+}
+
+void TCInstance::popIdentifierStack()
+{
+	iceAssert(this->identifierStack.size() > 0 && "popping empty stack");
+	this->identifierStack.pop_back();
+}
 
 
 

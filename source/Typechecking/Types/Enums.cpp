@@ -10,7 +10,3 @@ fir::Type* EnumerationDef::doTypecheck(TCInstance* ti)
 {
 	return 0;
 }
-
-void EnumerationDef::generateDependencies(TCInstance* ti)
-{
-}

@@ -16,13 +16,3 @@ fir::Type* DeallocStmt::doTypecheck(TCInstance* ti)
 {
 	return 0;
 }
-
-
-
-void AllocStmt::generateDependencies(TCInstance* ti)
-{
-}
-
-void DeallocStmt::generateDependencies(TCInstance* ti)
-{
-}

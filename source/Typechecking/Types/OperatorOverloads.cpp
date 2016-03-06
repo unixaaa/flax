@@ -12,6 +12,3 @@ fir::Type* OpOverloadDef::doTypecheck(TCInstance* ti)
 }
 
 
-void OpOverloadDef::generateDependencies(TCInstance* ti)
-{
-}
