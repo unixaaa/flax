@@ -43,6 +43,8 @@ fir::Type* FuncDecl::doTypecheck(TCInstance* ti)
 
 		if(ty == 0)
 			error(this, "Unknown type '%s'", arg->type.c_str());
+
+		argTypes.push_back(ty);
 	}
 
 	return fir::FunctionType::get(argTypes, returnType, this->isVarArg);
@@ -191,7 +193,6 @@ fir::Type* FunctionDef::doTypecheck(TCInstance* ti)
 	for(size_t i = 0; i < ftype->getArgumentTypes().size(); i++)
 		ti->addIdentifier(this->funcDecl->arguments[i]->name, ftype->getArgumentN(i));
 
-
 	// check the statements inside.
 	// this already does the typecheck on each expression.
 
@@ -206,10 +207,6 @@ fir::Type* FunctionDef::doTypecheck(TCInstance* ti)
 		error(this, "Provided expressions (type %s) do not corroborate with declared return type %s", givenType->str().c_str(),
 			ftype->getReturnType()->str().c_str());
 	}
-
-
-
-
 
 	ti->popIdentifierStack();
 	return ftype;

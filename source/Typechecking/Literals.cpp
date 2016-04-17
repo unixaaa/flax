@@ -21,7 +21,7 @@ fir::Type* NumberLiteral::doTypecheck(TCInstance* ti)
 
 fir::Type* BooleanLiteral::doTypecheck(TCInstance* ti)
 {
-	return 0;
+	return fir::PrimitiveType::getBool();
 }
 
 fir::Type* ArrayLiteral::doTypecheck(TCInstance* ti)

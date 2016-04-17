@@ -32,7 +32,6 @@ struct TCInstance
 
 	std::deque<std::deque<std::pair<std::string, fir::Type*>>> identifierStack;
 	std::pair<std::string, fir::Type*> getIdentifier(std::string name);
-
 	void addIdentifier(std::string name, fir::Type* type);
 
 	void pushIdentifierStack();

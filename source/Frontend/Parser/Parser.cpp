@@ -744,10 +744,10 @@ namespace Parser
 
 		if(tk.type == TType::Exclamation)		op = ArithmeticOp::LogicalNot;
 		else if(tk.type == TType::Plus)			op = ArithmeticOp::Plus;
-		else if(tk.type == TType::Minus)			op = ArithmeticOp::Minus;
-		else if(tk.type == TType::Tilde)			op = ArithmeticOp::BitwiseNot;
-		else if(tk.type == TType::Pound)			op = ArithmeticOp::Deref;
-		else if(tk.type == TType::Ampersand)		op = ArithmeticOp::AddrOf;
+		else if(tk.type == TType::Minus)		op = ArithmeticOp::Minus;
+		else if(tk.type == TType::Tilde)		op = ArithmeticOp::BitwiseNot;
+		else if(tk.type == TType::Pound)		op = ArithmeticOp::Deref;
+		else if(tk.type == TType::Ampersand)	op = ArithmeticOp::AddrOf;
 
 		if(op != ArithmeticOp::Invalid)
 		{
@@ -1596,7 +1596,6 @@ namespace Parser
 					case TType::ShiftLeftEq:	op = ArithmeticOp::ShiftLeftEquals;		break;
 					case TType::ShiftRightEq:	op = ArithmeticOp::ShiftRightEquals;	break;
 					case TType::Period:			op = ArithmeticOp::MemberAccess;		break;
-					case TType::DoubleColon:	op = ArithmeticOp::ScopeResolution;		break;
 					case TType::As:				op = (tok_op.text == "as!") ? ArithmeticOp::ForcedCast : ArithmeticOp::Cast;
 												break;
 					default:

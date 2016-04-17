@@ -449,7 +449,8 @@ namespace Ast
 	{
 		ExtensionDef(Parser::Pin pos, std::string n) : ClassDef(pos, n) { }
 		virtual ~ExtensionDef() override { }
-		virtual fir::Type* doTypecheck(TCInstance* ti) override;	};
+		virtual fir::Type* doTypecheck(TCInstance* ti) override;
+	};
 
 	struct ClassPropertyDef : VarDecl
 	{

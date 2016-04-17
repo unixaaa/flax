@@ -38,7 +38,7 @@ namespace Tcn
 	{
 		Expr(Parser::Pin pos) : pin(pos) { }
 		virtual ~Expr() { }
-		virtual Result_t codegen(Codegen::CodegenInstance* cgi, fir::Value* lhsPtr, fir::Value* rhs) = 0;
+		// virtual Result_t codegen(Codegen::CodegenInstance* cgi, fir::Value* lhsPtr, fir::Value* rhs) = 0;
 
 		Parser::Pin pin;
 		fir::Type* type = 0;
